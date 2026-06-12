@@ -1,0 +1,67 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-spacing-6);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ds-spacing-2);
+}
+
+.timestamp {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+/* ── Grid layouts ────────────────────────────────────────────── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ds-spacing-4);
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--ds-spacing-4);
+}
+
+.threeCol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--ds-spacing-4);
+}
+
+/* ── Stat card ───────────────────────────────────────────────── */
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-spacing-1);
+}
+
+.statLabel {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-sm);
+}
+
+.statValue {
+  font-size: var(--ds-font-size-xl);
+  font-weight: var(--ds-font-weight-semibold);
+  line-height: 1.2;
+}
+
+.statUnit {
+  font-size: var(--ds-font-size-sm);
+  color: var(--ds-color-neutral-text-subtle);
+  font-weight: normal;
+}
+
+/* ── Loading / error ─────────────────────────────────────────── */
+.spinnerCenter {
+  display: flex;
+  justify-content: center;
+  padding: var(--ds-spacing-12);
+}

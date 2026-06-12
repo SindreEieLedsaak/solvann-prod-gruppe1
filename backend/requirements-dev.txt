@@ -1,0 +1,6 @@
+# Development & test dependencies (includes production)
+-r requirements.txt
+pytest>=8.0.0
+pytest-flask>=1.3.0
+black>=24.0.0
+ruff>=0.4.0
