@@ -17,8 +17,13 @@ class Settings:
 
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 
-    # Placeholder — uncomment and populate when adding a database
-    # DATABASE_URL: str = os.getenv("DATABASE_URL", "")
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL", "postgresql://solvann:solvann@localhost:5432/solvann"
+    )
+    # Background job that samples plant data into DATABASE_URL every 60s for history/aggregates
+    ENABLE_HISTORY_COLLECTOR: bool = (
+        os.getenv("ENABLE_HISTORY_COLLECTOR", "true").lower() == "true"
+    )
 
 
 settings = Settings()

@@ -27,7 +27,7 @@
   margin: 0;
   padding: 0;
   display: flex;
-  gap: var(--ds-spacing-2);
+  gap: var(--ds-spacing-6);
 }
 
 .navLink {

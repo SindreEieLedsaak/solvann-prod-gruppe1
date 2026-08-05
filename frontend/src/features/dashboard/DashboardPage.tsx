@@ -92,6 +92,7 @@ function TurbineRow({ t }: TurbineRowProps) {
       <Table.Cell>
         {t.status === 'RUNNING' ? fmt(t.production_mw) + ' MW' : '\u2014'}
       </Table.Cell>
+      <Table.Cell>{t.status === 'RUNNING' ? fmt(t.load_pct, 0) + ' %' : '\u2014'}</Table.Cell>
       <Table.Cell>{t.pump_mode ? 'Ja' : 'Nei'}</Table.Cell>
       <Table.Cell>{fmt(t.runtime_h, 0)} t</Table.Cell>
       <Table.Cell>{fmt(t.capacity_mw, 0)} MW</Table.Cell>
@@ -106,6 +107,8 @@ export function DashboardPage() {
     () => plantService.getOverview(),
     5000
   );
+  const { data: history } = usePolling(() => plantService.getHistory(24), 30000);
+  const { data: hourly } = usePolling(() => plantService.getHourlyHistory(24), 30000);
 
   const [now, setNow] = useState(new Date());
   useEffect(() => {
@@ -126,19 +129,27 @@ export function DashboardPage() {
 
   return (
     <div className={styles.page}>
-      {/* \u2500\u2500 Top bar \u2500\u2500 */}
+      {/* ── Top bar ── */}
       <div className={styles.topBar}>
         <Heading level={1} data-size="lg">
           Dashboard
         </Heading>
         <Paragraph data-size="sm" className={styles.timestamp}>
-          {dateStr} {timeStr} \u00b7 Sist oppdatert: {updatedStr}
+          {dateStr} {timeStr} · Sist oppdatert: {updatedStr}
         </Paragraph>
       </div>
 
       {error && (
         <Alert data-color="danger">
           <Paragraph>Datafeil: {error}</Paragraph>
+        </Alert>
+      )}
+
+      {ps && ps.alarms.length > 0 && (
+        <Alert data-color="warning">
+          {ps.alarms.map((a) => (
+            <Paragraph key={a}>{a}</Paragraph>
+          ))}
         </Alert>
       )}
 
@@ -150,7 +161,7 @@ export function DashboardPage() {
 
       {data && ps && res && mkt && sol && (
         <>
-          {/* \u2500\u2500 Plant status KPIs \u2500\u2500 */}
+          {/* ── Plant status KPIs ── */}
           <div>
             <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
               Anleggsstatus
@@ -159,12 +170,12 @@ export function DashboardPage() {
               <StatCard label="Totalproduksjon" value={fmt(ps.total_production_mw)} unit="MW" />
               <StatCard label="Inntekt (est.)" value={fmtNok(ps.revenue_nok_h)} unit="NOK/t" />
               <StatCard
-                label="Milj\u00f8kostnad"
+                label="Miljøkostnad"
                 value={fmtNok(ps.environmental_cost_nok_h)}
                 unit="NOK/t"
               />
-              <StatCard label="Vanninntak" value={fmt(ps.water_inflow_m3s)} unit="m\u00b3/s" />
-              <StatCard label="Magasinniv\u00e5" value={fmt(ps.reservoir_level_pct)} unit="%" />
+              <StatCard label="Vanninntak" value={fmt(ps.water_inflow_m3s)} unit="m³/s" />
+              <StatCard label="Magasinnivå" value={fmt(ps.reservoir_level_pct)} unit="%" />
               <StatCard
                 label="Aktive turbiner"
                 value={`${ps.active_turbines} / ${ps.total_turbines}`}
@@ -173,7 +184,7 @@ export function DashboardPage() {
             </div>
           </div>
 
-          {/* \u2500\u2500 Turbine table \u2500\u2500 */}
+          {/* ── Turbine table ── */}
           <Card>
             <CardBlock>
               <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
@@ -185,6 +196,7 @@ export function DashboardPage() {
                     <Table.HeaderCell>ID</Table.HeaderCell>
                     <Table.HeaderCell>Status</Table.HeaderCell>
                     <Table.HeaderCell>Produksjon</Table.HeaderCell>
+                    <Table.HeaderCell>Last</Table.HeaderCell>
                     <Table.HeaderCell>Pumpemodus</Table.HeaderCell>
                     <Table.HeaderCell>Driftstid</Table.HeaderCell>
                     <Table.HeaderCell>Kapasitet</Table.HeaderCell>
@@ -199,7 +211,7 @@ export function DashboardPage() {
             </CardBlock>
           </Card>
 
-          {/* \u2500\u2500 Bottom row \u2500\u2500 */}
+          {/* ── Bottom row ── */}
           <div className={styles.threeCol}>
             {/* Reservoir */}
             <Card>
@@ -209,7 +221,7 @@ export function DashboardPage() {
                 </Heading>
                 <div className={styles.statCard} style={{ gap: 'var(--ds-spacing-2)' }}>
                   <div>
-                    <span className={styles.statLabel}>Niv\u00e5</span>
+                    <span className={styles.statLabel}>Nivå</span>
                     <div className={styles.statValue}>
                       {fmt(res.level_pct, 2)}{' '}
                       <span className={styles.statUnit}>%</span>
@@ -219,14 +231,14 @@ export function DashboardPage() {
                     <span className={styles.statLabel}>Tilsig</span>
                     <div className={styles.statValue}>
                       {fmt(res.inflow_m3s, 2)}{' '}
-                      <span className={styles.statUnit}>m\u00b3/s</span>
+                      <span className={styles.statUnit}>m³/s</span>
                     </div>
                   </div>
                   <div>
-                    <span className={styles.statLabel}>Avl\u00f8p</span>
+                    <span className={styles.statLabel}>Avløp</span>
                     <div className={styles.statValue}>
                       {fmt(res.outflow_m3s, 2)}{' '}
-                      <span className={styles.statUnit}>m\u00b3/s</span>
+                      <span className={styles.statUnit}>m³/s</span>
                     </div>
                   </div>
                 </div>
@@ -288,6 +300,92 @@ export function DashboardPage() {
               </CardBlock>
             </Card>
           </div>
+
+          {/* ── History / aggregated income ── */}
+          <Card>
+            <CardBlock>
+              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+                Historikk (siste 24 t)
+              </Heading>
+              {history && history.sample_count > 0 ? (
+                <div className={styles.statsGrid}>
+                  <StatCard
+                    label="Energi produsert"
+                    value={fmt(history.summary.total_energy_mwh, 1)}
+                    unit="MWh"
+                  />
+                  <StatCard
+                    label="Inntekt"
+                    value={fmtNok(history.summary.total_revenue_nok)}
+                    unit="NOK"
+                  />
+                  <StatCard
+                    label="Miljøkostnad"
+                    value={fmtNok(history.summary.total_environmental_cost_nok)}
+                    unit="NOK"
+                  />
+                </div>
+              ) : (
+                <Paragraph data-size="sm" className={styles.timestamp}>
+                  Ingen historiske data tilgjengelig ennå.
+                </Paragraph>
+              )}
+            </CardBlock>
+          </Card>
+
+          {/* ── Hourly production log — for manual/spreadsheet reading ── */}
+          <Card>
+            <CardBlock>
+              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+                Produksjon per time (siste 24 t)
+              </Heading>
+              {hourly && hourly.hour_count > 0 ? (
+                <Table>
+                  <Table.Head>
+                    <Table.Row>
+                      <Table.HeaderCell>Time</Table.HeaderCell>
+                      <Table.HeaderCell>Snittproduksjon</Table.HeaderCell>
+                      <Table.HeaderCell>Energi</Table.HeaderCell>
+                      <Table.HeaderCell>Inntekt</Table.HeaderCell>
+                      <Table.HeaderCell>Miljøkostnad</Table.HeaderCell>
+                      <Table.HeaderCell>Magasinnivå</Table.HeaderCell>
+                      <Table.HeaderCell>Målinger</Table.HeaderCell>
+                    </Table.Row>
+                  </Table.Head>
+                  <Table.Body>
+                    {hourly.points.map((p) => (
+                      <Table.Row key={p.hour}>
+                        <Table.Cell>
+                          {new Date(p.hour).toLocaleString('nb-NO', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </Table.Cell>
+                        <Table.Cell>{fmt(p.avg_production_mw)} MW</Table.Cell>
+                        <Table.Cell>{fmt(p.energy_mwh)} MWh</Table.Cell>
+                        <Table.Cell>{fmtNok(p.revenue_nok)} NOK</Table.Cell>
+                        <Table.Cell>{fmtNok(p.environmental_cost_nok)} NOK</Table.Cell>
+                        <Table.Cell>{fmt(p.avg_reservoir_level_pct)} %</Table.Cell>
+                        <Table.Cell>
+                          {p.sample_count < 55 ? (
+                            <Tag data-color="warning">{p.sample_count} (ufullstendig)</Tag>
+                          ) : (
+                            p.sample_count
+                          )}
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              ) : (
+                <Paragraph data-size="sm" className={styles.timestamp}>
+                  Ingen historiske data tilgjengelig ennå.
+                </Paragraph>
+              )}
+            </CardBlock>
+          </Card>
         </>
       )}
     </div>

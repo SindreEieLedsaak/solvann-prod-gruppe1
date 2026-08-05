@@ -5,18 +5,20 @@ export interface PollingState<T> {
   loading: boolean;
   error: string | null;
   lastUpdated: Date | null;
+  refetch: () => Promise<void>;
 }
 
 /**
  * Calls `fetchFn` immediately and then every `intervalMs` milliseconds.
  * The fetch function reference is stable — updates are reflected without
- * restarting the interval.
+ * restarting the interval. Also exposes `refetch` to trigger an immediate
+ * out-of-band fetch (e.g. right after a mutation).
  */
 export function usePolling<T>(
   fetchFn: () => Promise<T>,
   intervalMs = 5000
 ): PollingState<T> {
-  const [state, setState] = useState<PollingState<T>>({
+  const [state, setState] = useState<Omit<PollingState<T>, 'refetch'>>({
     data: null,
     loading: true,
     error: null,
@@ -25,6 +27,8 @@ export function usePolling<T>(
 
   const fnRef = useRef(fetchFn);
   fnRef.current = fetchFn;
+
+  const runRef = useRef<() => Promise<void>>(async () => {});
 
   useEffect(() => {
     let mounted = true;
@@ -42,6 +46,7 @@ export function usePolling<T>(
           }));
       }
     };
+    runRef.current = run;
 
     run();
     const id = setInterval(run, intervalMs);
@@ -52,5 +57,5 @@ export function usePolling<T>(
     };
   }, [intervalMs]);
 
-  return state;
+  return { ...state, refetch: () => runRef.current() };
 }

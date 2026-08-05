@@ -1,14 +1,27 @@
 # docker-compose.yml — local development
 #
 # Services:
+#   db       — Postgres store for historical/aggregated plant data
 #   backend  — Flask dev server with hot reload via gunicorn --reload
 #   frontend — Vite dev server with HMR
 #
 # Usage:
-#   docker compose up          # start both services
-#   docker compose up backend  # start backend only
+#   docker compose up          # start all services
+#   docker compose up backend  # start backend (+ its db dependency) only
 
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: solvann
+      POSTGRES_USER: solvann
+      POSTGRES_PASSWORD: solvann
+    ports:
+      - "5432:5432"
+    volumes:
+      - solvann_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -23,6 +36,9 @@ services:
     environment:
       FLASK_ENV: development
       FLASK_DEBUG: "true"
+      DATABASE_URL: postgresql://solvann:solvann@db:5432/solvann
+    depends_on:
+      - db
     restart: unless-stopped
 
   frontend:
@@ -43,3 +59,7 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  solvann_db_data:
+

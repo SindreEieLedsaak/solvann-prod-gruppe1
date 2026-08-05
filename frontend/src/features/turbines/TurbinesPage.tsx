@@ -8,6 +8,7 @@ import {
   Spinner,
   Table,
 } from '@digdir/designsystemet-react';
+import { Link } from 'react-router-dom';
 import { usePolling } from '../../hooks/usePolling';
 import { plantService } from '../../services/plantService';
 import type { TurbineStatus } from '../../types/plant';
@@ -70,7 +71,9 @@ export function TurbinesPage() {
               <Table.Body>
                 {data.map((t) => (
                   <Table.Row key={t.id}>
-                    <Table.Cell>{t.id}</Table.Cell>
+                    <Table.Cell>
+                      <Link to={`/turbines/${t.id}`}>{t.id}</Link>
+                    </Table.Cell>
                     <Table.Cell>
                       <Tag data-color={statusColor(t.status)}>{statusLabel(t.status)}</Tag>
                     </Table.Cell>
