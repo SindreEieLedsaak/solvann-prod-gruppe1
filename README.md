@@ -47,7 +47,31 @@ solvann/
 
 ---
 
+## Prerequisites
+
+Install these before following either quick-start path below:
+
+| Tool | Minimum version | Check | Install |
+|------|-----------------|-------|---------|
+| Python | 3.11+ | `python --version` | [python.org/downloads](https://www.python.org/downloads/) · Windows: `winget install Python.Python.3.12` |
+| Node.js (includes npm) | 20 LTS+ | `node --version` / `npm --version` | [nodejs.org](https://nodejs.org/) · Windows: `winget install OpenJS.NodeJS.LTS` |
+| Docker Desktop | latest | `docker --version` / `docker compose version` | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) · Windows: `winget install Docker.DockerDesktop` |
+
+Docker Desktop must be **running** (its engine, not just installed) before any `docker compose` command
+will work — on Windows/macOS this means launching the Docker Desktop application first.
+
+You don't need every tool for every workflow:
+
+- Fully local dev (no Docker) → Python + Node/npm, plus Docker only for the Postgres database (see below).
+- Fully containerized dev (`docker compose up`) → Docker Desktop only.
+
+---
+
 ## Quick start (local, no Docker)
+
+> The backend's history feature (production/income over time) needs Postgres — start it with
+> `docker compose up db -d` before `python run.py` (see [Database](#database-postgres-for-local-development) below).
+> Without it, the app still runs fine; the history collector just logs a warning and disables itself.
 
 ### Backend
 
@@ -109,6 +133,53 @@ immediately (gunicorn `--reload` for Flask, Vite HMR for React).
 
 ---
 
+## Database (Postgres) for local development
+
+Historical/aggregated plant data (production, income, environmental cost, per-turbine history) is
+persisted to Postgres. A background collector records a snapshot every 60 seconds while the backend
+is running.
+
+### Start just the database
+
+If you're running the backend/frontend locally (no Docker) but still want history to work:
+
+```bash
+# From the repo root
+docker compose up db -d      # starts only the db service, in the background
+docker compose logs -f db    # optional: tail its logs
+```
+
+This starts Postgres 16 on `localhost:5432` with the credentials already wired up in
+`backend/.env.example` (`DATABASE_URL=postgresql://solvann:solvann@localhost:5432/solvann`). Copy that
+file to `backend/.env` (see Quick start above) and `python run.py` will connect to it automatically.
+
+Data is persisted in a named Docker volume (`solvann_db_data`), so it survives `docker compose down`
+and container restarts. To wipe it completely:
+
+```bash
+docker compose down -v   # -v also removes named volumes
+```
+
+### Seeding demo history
+
+A fresh database only has data from the moment the backend starts collecting. To backfill a
+realistic 24h of synthetic history (e.g. for demos):
+
+```bash
+cd backend
+# with the venv active and DATABASE_URL pointing at the running db
+python scripts/seed_history.py            # 24h of samples, every 5 minutes
+python scripts/seed_history.py --clear    # wipe existing rows first, then seed
+python scripts/seed_history.py --hours 48 --interval-minutes 10
+```
+
+### Disabling history collection
+
+Set `ENABLE_HISTORY_COLLECTOR=false` in `backend/.env` to turn off the collector entirely (useful if
+you don't have Postgres running and want to silence the startup warning).
+
+---
+
 ## Running tests (backend)
 
 ```bash
@@ -147,6 +218,16 @@ npm run format   # Prettier
 | GET | `/api/health` | Health check |
 | GET | `/api/items` | List all items |
 | POST | `/api/items` | Create an item |
+| GET | `/api/plant/overview` | Current plant status, production, alarms |
+| GET | `/api/turbines` | List all turbines |
+| GET | `/api/turbines/<id>` | Single turbine detail |
+| GET | `/api/turbines/<id>/history` | Per-turbine history (requires Postgres) |
+| GET | `/api/reservoir` | Reservoir level & inflow/outflow |
+| GET | `/api/market` | Spot price / market data |
+| GET | `/api/solar` | Solar panel production |
+| GET | `/api/plant/history` | Raw plant history (requires Postgres) |
+| GET | `/api/plant/history/hourly` | Hourly-aggregated plant history (requires Postgres) |
+| GET | `/api/plant/history/export?hours=N&resolution=hourly\|raw` | CSV export of history (requires Postgres) |
 
 ---
 
@@ -209,13 +290,22 @@ Add a nav link in **`frontend/src/components/ui/PageHeader.tsx`**:
 
 ---
 
-## Adding a database
+## Persistence layer
 
-1. Add `flask-sqlalchemy` and `alembic` to `requirements.txt`
-2. Set `DATABASE_URL` in `.env`
-3. Define models in `backend/app/models/`
-4. Initialize the extension in `create_app()` in `backend/app/__init__.py`
-5. Replace the in-memory store in `ExampleService` with a repository that queries the database
+Historical plant/turbine data is already persisted to Postgres via `psycopg2` (no ORM) — see
+[Database (Postgres) for local development](#database-postgres-for-local-development) to run it.
+
+- `backend/app/services/history_service.py` — connection pool, `init_db()` (creates/upgrades the
+  `plant_snapshots` and `turbine_snapshots` tables), `record_snapshot()`, `get_history()`,
+  `get_hourly_history()`, `get_turbine_history()`.
+- `backend/app/__init__.py` — starts a `BackgroundScheduler` job that calls `record_snapshot()` every
+  60s; if `DATABASE_URL` is unset or unreachable, this logs a warning and disables itself instead of
+  crashing the app.
+- The `ExampleService`/`/api/items` resource is unrelated and still uses an in-memory store — a good
+  reference if you want to add a *new* database-backed resource from scratch:
+  1. Define any new tables/migrations alongside `history_service.py`'s `init_db()`
+  2. Add query functions to a service module
+  3. Call them from a new Blueprint in `backend/app/api/`
 
 ---
 
