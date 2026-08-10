@@ -1,0 +1,49 @@
+.header {
+  background-color: var(--ds-color-neutral-background-default);
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+  padding: var(--ds-spacing-3) var(--ds-spacing-4);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-spacing-4);
+}
+
+.logo {
+  margin: 0;
+}
+
+.logoLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--ds-spacing-6);
+}
+
+.navLink {
+  text-decoration: none;
+  color: var(--ds-color-neutral-text-default);
+  font-weight: 500;
+  padding: var(--ds-spacing-1) var(--ds-spacing-2);
+  border-radius: var(--ds-border-radius-sm);
+  transition: background-color 0.15s ease;
+}
+
+.navLink:hover {
+  background-color: var(--ds-color-neutral-background-hover);
+}
+
+.navLink.active {
+  color: var(--ds-color-accent-text-default);
+  font-weight: 600;
+}

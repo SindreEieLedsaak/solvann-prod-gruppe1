@@ -1,0 +1,65 @@
+# docker-compose.yml — local development
+#
+# Services:
+#   db       — Postgres store for historical/aggregated plant data
+#   backend  — Flask dev server with hot reload via gunicorn --reload
+#   frontend — Vite dev server with HMR
+#
+# Usage:
+#   docker compose up          # start all services
+#   docker compose up backend  # start backend (+ its db dependency) only
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: solvann
+      POSTGRES_USER: solvann
+      POSTGRES_PASSWORD: solvann
+    ports:
+      - "5432:5432"
+    volumes:
+      - solvann_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend.Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount source so gunicorn --reload picks up changes
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    environment:
+      FLASK_ENV: development
+      FLASK_DEBUG: "true"
+      DATABASE_URL: postgresql://solvann:solvann@db:5432/solvann
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    # Run Vite dev server bound to all interfaces so Docker port mapping works
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      # Prevent the container node_modules from being overwritten by the host mount
+      - /app/node_modules
+    environment:
+      # Empty → Vite proxy forwards /api/* to localhost:5000 (inside the container
+      # this goes to the backend service via Docker's internal DNS)
+      VITE_API_BASE_URL: "http://backend:5000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  solvann_db_data:
+

@@ -1,0 +1,11 @@
+.footer {
+  background-color: var(--ds-color-neutral-background-subtle);
+  border-top: 1px solid var(--ds-color-neutral-border-subtle);
+  padding: var(--ds-spacing-4) var(--ds-spacing-4);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
