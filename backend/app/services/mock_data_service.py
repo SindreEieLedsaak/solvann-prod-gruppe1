@@ -57,7 +57,13 @@ TURBINE_DEFS = [
 TURBINE_MIN_LOAD_PCT = 40.0
 TURBINE_MAX_LOAD_PCT = 100.0
 TURBINE_DEFAULT_LOAD_PCT = 85.0
-TURBINE_CONTROLLABLE_STATUSES = ("RUNNING", "STANDBY", "OFFLINE")
+TURBINE_CONTROLLABLE_STATUSES = ("RUNNING", "STANDBY", "OFFLINE", "PUMPING")
+TURBINE_LOAD_CAPABLE_STATUSES = ("RUNNING", "PUMPING")
+
+# Round-trip efficiency of running a turbine in reverse as a pump: pumping a
+# given flow back uphill costs more grid power than generating from the same
+# flow downhill would yield, and lifts less water per MW than that.
+TURBINE_PUMP_EFFICIENCY = 0.75
 
 # Initial statuses — T-04 on standby, T-06 under maintenance. Mutable at
 # runtime via set_turbine_control(), guarded by _turbine_lock. This is a
@@ -93,10 +99,9 @@ RESERVOIR_REVERSION_RATE = 0.0002  # fraction of the gap to baseline per second
 
 # Below this, continued full-scale operation risks breaching the license's
 # ecological minimum flow requirement (see SYS_RESERVOIR_MIN in Settings) as
-# the reservoir keeps draining faster than it refills. This only raises an
-# advisory alarm — operators decide whether/which turbines to throttle or stop.
-# It's also where head loss starts capping deliverable power (see
-# _head_derate_factor) — falling water level means falling head/pressure.
+# the reservoir keeps draining faster than it refills. This is where head loss
+# starts capping deliverable power (see _head_derate_factor) — falling water
+# level means falling head/pressure.
 RESERVOIR_LOW_LEVEL_WARNING_PCT = 50.0
 RESERVOIR_HEAD_DERATE_FLOOR = 0.5  # at 0% level, output falls to this fraction of nominal
 
@@ -153,51 +158,42 @@ def _market_price_base() -> float:
 
 def _turbine_production(capacity_mw: float, status: str, load_pct: float) -> float:
     """Production follows the operator-set load, capped by head derate at low
-    reservoir levels — no automatic optimization."""
-    if status != "RUNNING":
-        return 0.0
-    target = capacity_mw * (load_pct / 100.0) * _head_derate_factor(_level_pct)
-    return max(0.0, round(target + _noise(capacity_mw * 0.01), 2))
+    reservoir levels — no automatic optimization. PUMPING draws grid power
+    instead of producing it, so it's returned as negative."""
+    if status == "RUNNING":
+        target = capacity_mw * (load_pct / 100.0) * _head_derate_factor(_level_pct)
+        return max(0.0, round(target + _noise(capacity_mw * 0.01), 2))
+    if status == "PUMPING":
+        target = capacity_mw * (load_pct / 100.0) / TURBINE_PUMP_EFFICIENCY
+        return min(0.0, round(-target + _noise(capacity_mw * 0.01), 2))
+    return 0.0
 
 
 def _turbine_bearing_temp(status: str) -> float:
-    if status != "RUNNING":
+    if status not in ("RUNNING", "PUMPING"):
         return round(18.0 + _noise(1.0), 1)
     return round(_osc(58.0, 4.0, 180) + _noise(1.5), 1)
 
 
 def _turbine_vibration(status: str) -> float:
-    if status != "RUNNING":
+    if status not in ("RUNNING", "PUMPING"):
         return round(max(0.0, 0.1 + _noise(0.05)), 2)
     return round(max(0.0, _osc(2.2, 0.6, 90) + _noise(0.3)), 2)
 
 
 def _turbine_flow(capacity_mw: float, status: str, load_pct: float) -> float:
     """Flow follows load linearly — a simplified stand-in for a real turbine's
-    head/efficiency curve (a good target for later improvement)."""
-    if status != "RUNNING":
-        return 0.0
-    target = capacity_mw * 0.78 * (load_pct / 100.0)
-    return round(max(0.0, target + _noise(capacity_mw * 0.01)), 2)
+    head/efficiency curve (a good target for later improvement). Negative while
+    PUMPING: water is returned to the reservoir instead of drawn from it, so
+    this directly offsets Avløp/outflow (see _total_turbine_outflow)."""
+    if status == "RUNNING":
+        target = capacity_mw * 0.78 * (load_pct / 100.0)
+        return round(max(0.0, target + _noise(capacity_mw * 0.01)), 2)
+    if status == "PUMPING":
+        target = capacity_mw * 0.78 * (load_pct / 100.0) * TURBINE_PUMP_EFFICIENCY
+        return min(0.0, round(-target + _noise(capacity_mw * 0.01), 2))
+    return 0.0
 
-
-def _turbine_alarms(status: str) -> list[str]:
-    if status == "MAINTENANCE":
-        return ["Planlagt vedlikehold pågår"]
-    if status == "OFFLINE":
-        return ["Turbin er offline"]
-    if status == "RUNNING" and _level_pct < RESERVOIR_LOW_LEVEL_WARNING_PCT:
-        return ["Lavt magasinnivå — vurder å redusere last eller stoppe turbinen manuelt"]
-    return []
-
-
-def _plant_alarms(level_pct: float) -> list[str]:
-    """Plant-wide advisory, independent of any single turbine — surfaced on the
-    dashboard so operators notice a low reservoir even before drilling into a
-    specific turbine's detail page."""
-    if level_pct < RESERVOIR_LOW_LEVEL_WARNING_PCT:
-        return ["Lavt magasinnivå — vurder å redusere last eller stoppe turbiner manuelt"]
-    return []
 
 
 def _head_derate_factor(level_pct: float) -> float:
@@ -227,7 +223,9 @@ def _rain_boost_m3s() -> float:
 
 
 def _total_turbine_outflow() -> float:
-    """Avløp — sum of water flow through all currently running turbines (m³/s)."""
+    """Avløp — net water flow through all turbines (m³/s). Running turbines add
+    to it, PUMPING turbines subtract (return water to the reservoir instead),
+    so this can go negative if pumping outweighs generation."""
     total = 0.0
     for defn in TURBINE_DEFS:
         state = _turbine_state[defn["id"]]
@@ -261,8 +259,8 @@ def set_turbine_control(
             raise TurbineControlError(f"Ugyldig status: {status!r}")
 
         if load_pct is not None:
-            if new_status != "RUNNING":
-                raise TurbineControlError("Last kan bare settes når turbinen er i drift.")
+            if new_status not in TURBINE_LOAD_CAPABLE_STATUSES:
+                raise TurbineControlError("Last kan bare settes når turbinen er i drift eller pumper.")
             try:
                 load_pct = float(load_pct)
             except (TypeError, ValueError):
@@ -273,7 +271,7 @@ def set_turbine_control(
                     f"{TURBINE_MAX_LOAD_PCT:.0f}% (under dette bør turbinen settes i standby)."
                 )
             state["load_pct"] = load_pct
-        elif new_status == "RUNNING" and state["status"] != "RUNNING":
+        elif new_status in TURBINE_LOAD_CAPABLE_STATUSES and state["status"] not in TURBINE_LOAD_CAPABLE_STATUSES:
             state["load_pct"] = max(state["load_pct"], TURBINE_MIN_LOAD_PCT)
 
         state["status"] = new_status
@@ -314,7 +312,7 @@ def get_turbines() -> list[dict[str, Any]]:
                 "status": status,
                 "load_pct": load_pct,
                 "production_mw": _turbine_production(defn["capacity_mw"], status, load_pct),
-                "pump_mode": False,
+                "pump_mode": status == "PUMPING",
                 "runtime_h": round(defn["base_runtime_h"] + elapsed_h, 1),
                 "capacity_mw": defn["capacity_mw"],
             }
@@ -338,7 +336,7 @@ def get_turbine(turbine_id: str) -> dict[str, Any] | None:
             "load_pct": load_pct,
             "production_mw": _turbine_production(defn["capacity_mw"], status, load_pct),
             "capacity_mw": defn["capacity_mw"],
-            "pump_mode": False,
+            "pump_mode": status == "PUMPING",
             "runtime_h": round(defn["base_runtime_h"] + elapsed_h, 1),
             "manufacturer": defn["manufacturer"],
             "install_year": defn["install_year"],
@@ -348,7 +346,6 @@ def get_turbine(turbine_id: str) -> dict[str, Any] | None:
             "vibration_mm_s": _turbine_vibration(status),
             "last_maintenance": defn["last_maintenance"],
             "next_maintenance": defn["next_maintenance"],
-            "alarms": _turbine_alarms(status),
         }
     return None
 
@@ -401,7 +398,7 @@ def get_overview() -> dict[str, Any]:
     market = get_market()
     solar = get_solar()
 
-    active_turbines = sum(1 for t in turbines if t["status"] == "RUNNING")
+    active_turbines = sum(1 for t in turbines if t["status"] in ("RUNNING", "PUMPING"))
     total_water_mw = sum(t["production_mw"] for t in turbines)
     total_mw = total_water_mw + solar["production_kw"] / 1000.0
 
@@ -421,7 +418,6 @@ def get_overview() -> dict[str, Any]:
         "reservoir_level_pct": reservoir["level_pct"],
         "active_turbines": active_turbines,
         "total_turbines": len(turbines),
-        "alarms": _plant_alarms(reservoir["level_pct"]),
     }
 
     return {

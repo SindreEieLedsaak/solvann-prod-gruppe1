@@ -14,7 +14,7 @@ import { plantService } from '../../services/plantService';
 import type { TurbineStatus } from '../../types/plant';
 import styles from '../dashboard/DashboardPage.module.css';
 
-type TagColor = 'success' | 'warning' | 'neutral' | 'danger';
+type TagColor = 'success' | 'warning' | 'neutral' | 'danger' | 'info';
 
 function statusColor(s: TurbineStatus): TagColor {
   const map: Record<TurbineStatus, TagColor> = {
@@ -22,6 +22,7 @@ function statusColor(s: TurbineStatus): TagColor {
     STANDBY: 'warning',
     MAINTENANCE: 'neutral',
     OFFLINE: 'danger',
+    PUMPING: 'info',
   };
   return map[s] ?? 'neutral';
 }
@@ -32,6 +33,7 @@ function statusLabel(s: TurbineStatus) {
     STANDBY: 'Standby',
     MAINTENANCE: 'Vedlikehold',
     OFFLINE: 'Offline',
+    PUMPING: 'Pumper',
   };
   return map[s] ?? s;
 }
@@ -78,11 +80,13 @@ export function TurbinesPage() {
                       <Tag data-color={statusColor(t.status)}>{statusLabel(t.status)}</Tag>
                     </Table.Cell>
                     <Table.Cell>
-                      {t.status === 'RUNNING' ? `${t.production_mw.toFixed(2)} MW` : '—'}
+                      {t.status === 'RUNNING' || t.status === 'PUMPING'
+                        ? `${t.production_mw.toFixed(2)} MW`
+                        : '—'}
                     </Table.Cell>
                     <Table.Cell>{t.capacity_mw.toFixed(0)} MW</Table.Cell>
                     <Table.Cell>
-                      {t.status === 'RUNNING'
+                      {t.status === 'RUNNING' || t.status === 'PUMPING'
                         ? `${((t.production_mw / t.capacity_mw) * 100).toFixed(1)} %`
                         : '—'}
                     </Table.Cell>

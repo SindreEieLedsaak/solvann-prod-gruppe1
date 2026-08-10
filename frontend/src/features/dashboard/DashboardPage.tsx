@@ -32,6 +32,7 @@ function turbineStatusColor(s: TurbineStatus): TagColor {
     STANDBY: 'warning',
     MAINTENANCE: 'neutral',
     OFFLINE: 'danger',
+    PUMPING: 'info',
   };
   return map[s] ?? 'neutral';
 }
@@ -42,6 +43,7 @@ function turbineStatusLabel(s: TurbineStatus): string {
     STANDBY: 'Standby',
     MAINTENANCE: 'Vedlikehold',
     OFFLINE: 'Offline',
+    PUMPING: 'Pumper',
   };
   return map[s] ?? s;
 }
@@ -90,9 +92,11 @@ function TurbineRow({ t }: TurbineRowProps) {
         <Tag data-color={turbineStatusColor(t.status)}>{turbineStatusLabel(t.status)}</Tag>
       </Table.Cell>
       <Table.Cell>
-        {t.status === 'RUNNING' ? fmt(t.production_mw) + ' MW' : '\u2014'}
+        {t.status === 'RUNNING' || t.status === 'PUMPING' ? fmt(t.production_mw) + ' MW' : '—'}
       </Table.Cell>
-      <Table.Cell>{t.status === 'RUNNING' ? fmt(t.load_pct, 0) + ' %' : '\u2014'}</Table.Cell>
+      <Table.Cell>
+        {t.status === 'RUNNING' || t.status === 'PUMPING' ? fmt(t.load_pct, 0) + ' %' : '—'}
+      </Table.Cell>
       <Table.Cell>{t.pump_mode ? 'Ja' : 'Nei'}</Table.Cell>
       <Table.Cell>{fmt(t.runtime_h, 0)} t</Table.Cell>
       <Table.Cell>{fmt(t.capacity_mw, 0)} MW</Table.Cell>
@@ -142,14 +146,6 @@ export function DashboardPage() {
       {error && (
         <Alert data-color="danger">
           <Paragraph>Datafeil: {error}</Paragraph>
-        </Alert>
-      )}
-
-      {ps && ps.alarms.length > 0 && (
-        <Alert data-color="warning">
-          {ps.alarms.map((a) => (
-            <Paragraph key={a}>{a}</Paragraph>
-          ))}
         </Alert>
       )}
 

@@ -1,4 +1,4 @@
-export type TurbineStatus = 'RUNNING' | 'STANDBY' | 'OFFLINE' | 'MAINTENANCE';
+export type TurbineStatus = 'RUNNING' | 'STANDBY' | 'OFFLINE' | 'MAINTENANCE' | 'PUMPING';
 export type MarketStatus = 'NORMAL' | 'PEAK' | 'LOW';
 
 export interface Turbine {
@@ -21,7 +21,6 @@ export interface TurbineDetail extends Turbine {
   vibration_mm_s: number;
   last_maintenance: string;
   next_maintenance: string;
-  alarms: string[];
 }
 
 export interface ReservoirData {
@@ -50,7 +49,6 @@ export interface PlantStatus {
   reservoir_level_pct: number;
   active_turbines: number;
   total_turbines: number;
-  alarms: string[];
 }
 
 export interface PlantOverview {

@@ -21,7 +21,7 @@ import styles from '../dashboard/DashboardPage.module.css';
 const MIN_LOAD_PCT = 40;
 const MAX_LOAD_PCT = 100;
 
-type TagColor = 'success' | 'warning' | 'neutral' | 'danger';
+type TagColor = 'success' | 'warning' | 'neutral' | 'danger' | 'info';
 
 function statusColor(s: TurbineStatus): TagColor {
   const map: Record<TurbineStatus, TagColor> = {
@@ -29,6 +29,7 @@ function statusColor(s: TurbineStatus): TagColor {
     STANDBY: 'warning',
     MAINTENANCE: 'neutral',
     OFFLINE: 'danger',
+    PUMPING: 'info',
   };
   return map[s] ?? 'neutral';
 }
@@ -39,6 +40,7 @@ function statusLabel(s: TurbineStatus) {
     STANDBY: 'Standby',
     MAINTENANCE: 'Vedlikehold',
     OFFLINE: 'Offline',
+    PUMPING: 'Pumper',
   };
   return map[s] ?? s;
 }
@@ -94,21 +96,15 @@ export function TurbineDetailPage() {
 
       {t && (
         <>
-          {t.alarms.length > 0 && (
-            <Alert data-color="warning">
-              {t.alarms.map((a) => (
-                <Paragraph key={a}>{a}</Paragraph>
-              ))}
-            </Alert>
-          )}
-
           <div className={styles.statsGrid}>
             <Card>
               <CardBlock>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Produksjon</span>
                   <span className={styles.statValue}>
-                    {t.status === 'RUNNING' ? t.production_mw.toFixed(2) : '—'}
+                    {t.status === 'RUNNING' || t.status === 'PUMPING'
+                      ? t.production_mw.toFixed(2)
+                      : '—'}
                     <span className={styles.statUnit}> MW</span>
                   </span>
                 </div>
@@ -130,7 +126,7 @@ export function TurbineDetailPage() {
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Utnyttelse</span>
                   <span className={styles.statValue}>
-                    {t.status === 'RUNNING'
+                    {t.status === 'RUNNING' || t.status === 'PUMPING'
                       ? `${((t.production_mw / t.capacity_mw) * 100).toFixed(1)}`
                       : '—'}
                     <span className={styles.statUnit}> %</span>
@@ -229,6 +225,13 @@ export function TurbineDetailPage() {
                     >
                       Stopp
                     </Button>
+                    <Button
+                      variant={t.status === 'PUMPING' ? 'primary' : 'secondary'}
+                      disabled={submitting || t.status === 'PUMPING'}
+                      onClick={() => applyControl({ status: 'PUMPING' })}
+                    >
+                      Pump vann tilbake
+                    </Button>
                   </div>
 
                   <Field style={{ marginTop: 'var(--ds-spacing-4)', maxWidth: '16rem' }}>
@@ -243,7 +246,7 @@ export function TurbineDetailPage() {
                       step={1}
                       key={`${t.id}-${t.load_pct}`}
                       defaultValue={t.load_pct}
-                      disabled={submitting || t.status !== 'RUNNING'}
+                      disabled={submitting || (t.status !== 'RUNNING' && t.status !== 'PUMPING')}
                     />
                   </Field>
                   <Paragraph data-size="sm" style={{ marginTop: 'var(--ds-spacing-1)' }}>
@@ -253,7 +256,7 @@ export function TurbineDetailPage() {
                   <Button
                     style={{ marginTop: 'var(--ds-spacing-2)' }}
                     variant="secondary"
-                    disabled={submitting || t.status !== 'RUNNING'}
+                    disabled={submitting || (t.status !== 'RUNNING' && t.status !== 'PUMPING')}
                     onClick={handleSetLoad}
                   >
                     Bruk last
