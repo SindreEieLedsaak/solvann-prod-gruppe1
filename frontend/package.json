@@ -13,7 +13,7 @@
   "dependencies": {
     "@digdir/designsystemet-css": "^1.15.0",
     "@digdir/designsystemet-react": "^1.0.0",
-    "axios": "^1.7.0",
+    "axios": "^1.18.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-router-dom": "^6.24.0"
