@@ -53,9 +53,8 @@ services:
       # Prevent the container node_modules from being overwritten by the host mount
       - /app/node_modules
     environment:
-      # Empty → Vite proxy forwards /api/* to localhost:5000 (inside the container
-      # this goes to the backend service via Docker's internal DNS)
-      VITE_API_BASE_URL: "http://backend:5000"
+      # Browser-side requests need a host-reachable URL; Docker exposes backend:5000 on localhost.
+      VITE_API_BASE_URL: "http://localhost:5000"
     depends_on:
       - backend
     restart: unless-stopped
