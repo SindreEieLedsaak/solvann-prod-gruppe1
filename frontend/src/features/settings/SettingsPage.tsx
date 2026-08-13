@@ -48,7 +48,7 @@ export function SettingsPage() {
 
       <Card>
         <CardBlock>
-          <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
             Systemparametere
           </Heading>
           <Table>
@@ -74,7 +74,7 @@ export function SettingsPage() {
 
       <Card>
         <CardBlock>
-          <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
             Systeminfo
           </Heading>
           <Table>

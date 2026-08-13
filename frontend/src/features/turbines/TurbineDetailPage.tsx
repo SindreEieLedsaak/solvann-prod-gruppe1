@@ -193,7 +193,7 @@ export function TurbineDetailPage() {
 
           <Card>
             <CardBlock>
-              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
                 Styring
               </Heading>
               {t.status === 'MAINTENANCE' ? (
@@ -202,7 +202,7 @@ export function TurbineDetailPage() {
                 </Paragraph>
               ) : (
                 <>
-                  <div className={styles.statCard} style={{ flexDirection: 'row', gap: 'var(--ds-spacing-2)' }}>
+                  <div className={styles.statCard} style={{ flexDirection: 'row', gap: 'var(--ds-size-2)' }}>
                     <Button
                       variant={t.status === 'RUNNING' ? 'primary' : 'secondary'}
                       disabled={submitting || t.status === 'RUNNING'}
@@ -234,7 +234,7 @@ export function TurbineDetailPage() {
                     </Button>
                   </div>
 
-                  <Field style={{ marginTop: 'var(--ds-spacing-4)', maxWidth: '16rem' }}>
+                  <Field style={{ marginTop: 'var(--ds-size-4)', maxWidth: '16rem' }}>
                     <Label>Last (%)</Label>
                     <Input
                       ref={(el) => {
@@ -249,12 +249,12 @@ export function TurbineDetailPage() {
                       disabled={submitting || (t.status !== 'RUNNING' && t.status !== 'PUMPING')}
                     />
                   </Field>
-                  <Paragraph data-size="sm" style={{ marginTop: 'var(--ds-spacing-1)' }}>
+                  <Paragraph data-size="sm" style={{ marginTop: 'var(--ds-size-1)' }}>
                     Gyldig område: {MIN_LOAD_PCT}–{MAX_LOAD_PCT}% (under {MIN_LOAD_PCT}% bør turbinen
                     settes i standby i stedet).
                   </Paragraph>
                   <Button
-                    style={{ marginTop: 'var(--ds-spacing-2)' }}
+                    style={{ marginTop: 'var(--ds-size-2)' }}
                     variant="secondary"
                     disabled={submitting || (t.status !== 'RUNNING' && t.status !== 'PUMPING')}
                     onClick={handleSetLoad}
@@ -264,7 +264,7 @@ export function TurbineDetailPage() {
                 </>
               )}
               {controlError && (
-                <Alert data-color="danger" style={{ marginTop: 'var(--ds-spacing-3)' }}>
+                <Alert data-color="danger" style={{ marginTop: 'var(--ds-size-3)' }}>
                   <Paragraph data-size="sm">{controlError}</Paragraph>
                 </Alert>
               )}
@@ -273,7 +273,7 @@ export function TurbineDetailPage() {
 
           <Card>
             <CardBlock>
-              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
                 Vedlikehold og informasjon
               </Heading>
               <div className={styles.twoCol}>

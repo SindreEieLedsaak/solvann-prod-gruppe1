@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 export function HomePage() {
   return (
     <div>
-      <Heading data-size="2xl" level={1} style={{ marginBottom: 'var(--ds-spacing-4)' }}>
+      <Heading data-size="2xl" level={1} style={{ marginBottom: 'var(--ds-size-4)' }}>
         Welcome to Solvann
       </Heading>
-      <Paragraph data-size="lg" style={{ marginBottom: 'var(--ds-spacing-6)' }}>
+      <Paragraph data-size="lg" style={{ marginBottom: 'var(--ds-size-6)' }}>
         A production-ready full-stack template built with Python Flask and React.
       </Paragraph>
 
-      <Alert data-color="info" style={{ marginBottom: 'var(--ds-spacing-6)' }}>
+      <Alert data-color="info" style={{ marginBottom: 'var(--ds-size-6)' }}>
         <Heading data-size="sm" level={2}>
           Getting started
         </Heading>
@@ -25,8 +25,8 @@ export function HomePage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: 'var(--ds-spacing-4)',
-          marginBottom: 'var(--ds-spacing-6)',
+          gap: 'var(--ds-size-4)',
+          marginBottom: 'var(--ds-size-6)',
         }}
       >
         <Card>

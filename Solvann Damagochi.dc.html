@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+html,body{margin:0;padding:0;background:#12161C;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#5FD3FF;text-decoration:none}
+a:hover{color:#9FE4FF;text-decoration:underline}
+[data-focus]:focus-visible{outline:3px solid #5FD3FF;outline-offset:3px}
+[data-focus]{outline:none}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#12161C;font-family:Inter,system-ui,sans-serif;color:#E8EAED">
+
+  <header style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:16px 24px;border-bottom:1px solid #2A313D;position:sticky;top:0;background:#12161C;z-index:10">
+    <div style="padding:0 8px">
+      <div style="font-size:18px;font-weight:600;letter-spacing:-0.01em;line-height:1.2">Solvann</div>
+      <div style="font-size:12px;color:#9AA4B2;margin-top:2px">Driftsoversikt</div>
+    </div>
+      <nav aria-label="Hovednavigasjon" style="display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:2px;justify-self:center;min-width:0">
+        <sc-for list="{{ nav }}" as="item" hint-placeholder-count="6">
+          <button type="button" data-focus="1" onClick="{{ item.go }}" aria-current="{{ item.current }}" style="display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 12px;border:0;border-radius:8px;cursor:pointer;text-align:left;font-family:inherit;font-size:13px;white-space:nowrap;background:{{ item.bg }};color:{{ item.fg }};font-weight:{{ item.weight }}" style-hover="background:#1B212B">
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="flex:0 0 18px">
+              <sc-if value="{{ item.iconDevice }}" hint-placeholder-val="{{ true }}">
+                <g><rect x="3" y="1.5" width="12" height="15" rx="3" fill="{{ item.iconFill }}"></rect><rect x="5.5" y="4" width="7" height="6" rx="1" fill="{{ item.iconLine }}"></rect><rect x="6" y="12" width="6" height="1.6" rx="0.8" fill="{{ item.iconLine }}"></rect></g>
+              </sc-if>
+              <sc-if value="{{ item.iconTurbine }}" hint-placeholder-val="{{ true }}">
+                <g><circle cx="9" cy="9" r="7" fill="{{ item.iconFill }}"></circle><circle cx="9" cy="9" r="2.4" fill="{{ item.iconLine }}"></circle><rect x="8.2" y="0.8" width="1.6" height="4" fill="{{ item.iconLine }}"></rect></g>
+              </sc-if>
+              <sc-if value="{{ item.iconForm }}" hint-placeholder-val="{{ true }}">
+                <g><rect x="2.5" y="1.5" width="13" height="15" rx="2" fill="{{ item.iconFill }}"></rect><rect x="5" y="5" width="8" height="1.6" fill="{{ item.iconLine }}"></rect><rect x="5" y="8.2" width="8" height="1.6" fill="{{ item.iconLine }}"></rect><rect x="5" y="11.4" width="5" height="1.6" fill="{{ item.iconLine }}"></rect></g>
+              </sc-if>
+              <sc-if value="{{ item.iconBars }}" hint-placeholder-val="{{ true }}">
+                <g><rect x="1.5" y="2" width="15" height="14" rx="2" fill="{{ item.iconFill }}"></rect><rect x="4" y="9" width="2.4" height="4.5" fill="{{ item.iconLine }}"></rect><rect x="7.8" y="6" width="2.4" height="7.5" fill="{{ item.iconLine }}"></rect><rect x="11.6" y="4" width="2.4" height="9.5" fill="{{ item.iconLine }}"></rect></g>
+              </sc-if>
+              <sc-if value="{{ item.iconPrice }}" hint-placeholder-val="{{ true }}">
+                <g><polygon points="9,1 17,9 9,17 1,9" fill="{{ item.iconFill }}"></polygon><rect x="7.9" y="4.5" width="2.2" height="9" fill="{{ item.iconLine }}"></rect></g>
+              </sc-if>
+              <sc-if value="{{ item.iconReport }}" hint-placeholder-val="{{ true }}">
+                <g><rect x="2.5" y="1.5" width="13" height="15" rx="2" fill="{{ item.iconFill }}"></rect><rect x="5" y="5" width="8" height="1.6" fill="{{ item.iconLine }}"></rect><path d="M9 8v5m0 0l-2-2m2 2l2-2" stroke="{{ item.iconLine }}" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></g>
+              </sc-if>
+            </svg>
+            <span>{{ item.label }}</span>
+          </button>
+        </sc-for>
+      </nav>
+      <div></div>
+  </header>
+
+  <main style="padding:40px 48px 72px">
+
+    <sc-if value="{{ isGame }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:420px 1fr;gap:56px;max-width:1080px;margin:0 auto;align-items:start">
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:28px">
+
+          <div style="text-align:center">
+            <h1 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-0.01em">Damagochi</h1>
+            <p style="margin:6px 0 0;font-size:13px;color:#9AA4B2">Produksjonsbehovet, som en liten skjerm å passe på.</p>
+          </div>
+
+          <div style="background:linear-gradient(180deg,#2A8CE0 0%,#1C7ED6 42%,#166BB8 100%);border-radius:40px;padding:28px;border:1px solid #3D96E4;width:396px;max-width:100%">
+            <div style="background:#0F5FA8;border-radius:20px;padding:12px;border-top:1px solid #1A73C2;border-bottom:1px solid #0B4C87">
+              <div style="background:#0A1520;border-radius:10px;padding:16px;display:flex;justify-content:center;align-items:center">
+                <div aria-hidden="true" style="display:flex;flex-direction:column">
+                  <sc-for list="{{ sprite }}" as="row" hint-placeholder-count="20">
+                    <div style="display:flex">
+                      <sc-for list="{{ row }}" as="px" hint-placeholder-count="20">
+                        <div style="width:{{ pixel }}px;height:{{ pixel }}px;background:{{ px }}"></div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:24px">
+              <sc-for list="{{ controls }}" as="btn" hint-placeholder-count="3">
+                <button type="button" data-focus="1" onClick="{{ btn.go }}" style="flex:1;min-width:44px;min-height:60px;padding:8px 4px;cursor:pointer;font-family:inherit;font-size:15px;font-weight:500;color:#F2F8FF;border-radius:14px;border-top:1px solid #6FB4EE;border-left:1px solid #2A8CE0;border-right:1px solid #0B4C87;border-bottom:4px solid #072F55;background:linear-gradient(180deg,#166BB8 0%,#0B4C87 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)" style-hover="background:linear-gradient(180deg,#1A78C9 0%,#0E568F 100%);border-top-color:#8FC6F5;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)" style-active="border-bottom-width:1px;margin-top:3px;background:linear-gradient(180deg,#0B4C87 0%,#166BB8 100%)">
+                  {{ btn.label }}
+                </button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="text-align:center;max-width:380px">
+            <p style="margin:0;font-size:17px;font-weight:600;color:#E8EAED">{{ stateText }}</p>
+            <p style="margin:8px 0 0;font-size:14px;line-height:1.5;color:#9AA4B2;text-wrap:pretty">{{ stateSub }}</p>
+          </div>
+
+        </div>
+
+        <div style="display:flex;flex-direction:column;padding-top:8px">
+          <h2 style="margin:0 0 4px;font-size:12px;font-weight:600;color:#9AA4B2;text-transform:uppercase;letter-spacing:.05em">Nøkkeltall</h2>
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="7">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-bottom:1px solid #2A313D">
+              <span style="font-size:13px;color:#9AA4B2">{{ k.label }}</span>
+              <span style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ k.value }}</span>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ showActiveTurbines }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;padding:16px;margin-top:20px">
+              <div style="font-size:12px;color:#9AA4B2;margin-bottom:10px">{{ activeTurbinesLabel }}</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{ turbineChips }}" as="c" hint-placeholder-count="6">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }}">
+                    <span aria-hidden="true" style="width:6px;height:6px;border-radius:50%;background:{{ c.dot }}"></span>{{ c.id }}
+                  </span>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTurbines }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:32px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap">
+          <div>
+            <h1 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-0.01em">Turbiner</h1>
+            <p style="margin:4px 0 0;font-size:13px;color:#9AA4B2">6 reverserbare vannturbiner · 335 MW installert kapasitet</p>
+          </div>
+          <div style="font-size:12px;color:#9AA4B2">Sist oppdatert 09:42:17</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;padding:16px">
+            <div style="font-size:12px;color:#9AA4B2">Totalproduksjon</div>
+            <div style="font-size:28px;font-weight:600;line-height:1.2;margin-top:6px">184,2 <span style="font-size:13px;font-weight:400;color:#9AA4B2">MW</span></div>
+            <div style="font-size:12px;color:#9AA4B2;margin-top:8px">55 % av kapasitet</div>
+          </div>
+          <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;padding:16px">
+            <div style="font-size:12px;color:#9AA4B2">Aktive turbiner</div>
+            <div style="font-size:28px;font-weight:600;line-height:1.2;margin-top:6px">4 <span style="font-size:13px;font-weight:400;color:#9AA4B2">/ 6</span></div>
+            <div style="font-size:12px;color:#9AA4B2;margin-top:8px">1 pumper · 1 vedlikehold</div>
+          </div>
+          <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;padding:16px">
+            <div style="font-size:12px;color:#9AA4B2">Laveste last</div>
+            <div style="font-size:28px;font-weight:600;line-height:1.2;margin-top:6px">42 <span style="font-size:13px;font-weight:400;color:#9AA4B2">%</span></div>
+            <div style="font-size:12px;color:#9AA4B2;margin-top:8px">Over grensen på 40 %</div>
+          </div>
+          <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;padding:16px">
+            <div style="font-size:12px;color:#9AA4B2">Driftstid i snitt</div>
+            <div style="font-size:28px;font-weight:600;line-height:1.2;margin-top:6px">41 208 <span style="font-size:13px;font-weight:400;color:#9AA4B2">t</span></div>
+            <div style="font-size:12px;color:#9AA4B2;margin-top:8px">Eldste enhet: T3</div>
+          </div>
+        </div>
+
+        <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;overflow:hidden">
+          <div style="padding:16px;border-bottom:1px solid #2A313D">
+            <h2 style="margin:0;font-size:14px;font-weight:600">Turbinstatus</h2>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap">
+              <thead>
+                <tr>
+                  <th scope="col" style="text-align:left;padding:12px 16px;font-weight:500;color:#9AA4B2;border-bottom:1px solid #2A313D">ID</th>
+                  <th scope="col" style="text-align:left;padding:12px 16px;font-weight:500;color:#9AA4B2;border-bottom:1px solid #2A313D">Status</th>
+                  <th scope="col" style="text-align:right;padding:12px 16px;font-weight:500;color:#9AA4B2;border-bottom:1px solid #2A313D">Produksjon</th>
+                  <th scope="col" style="text-align:right;padding:12px 16px;font-weight:500;color:#9AA4B2;border-bottom:1px solid #2A313D">Last</th>
+                  <th scope="col" style="text-align:right;padding:12px 16px;font-weight:500;color:#9AA4B2;border-bottom:1px solid #2A313D">Kapasitet</th>
+                  <th scope="col" style="text-align:left;padding:12px 16px;font-weight:500;color:#9AA4B2;border-bottom:1px solid #2A313D">Pumpemodus</th>
+                  <th scope="col" style="text-align:right;padding:12px 16px;font-weight:500;color:#9AA4B2;border-bottom:1px solid #2A313D">Driftstid</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ turbines }}" as="t" hint-placeholder-count="6">
+                  <tr>
+                    <td style="padding:14px 16px;border-bottom:1px solid #2A313D;font-weight:500">{{ t.id }}</td>
+                    <td style="padding:14px 16px;border-bottom:1px solid #2A313D">
+                      <span style="display:inline-flex;align-items:center;gap:7px;padding:3px 9px;border-radius:8px;border:1px solid {{ t.tagBorder }};background:{{ t.tagBg }};font-size:12px">
+                        <span aria-hidden="true" style="width:7px;height:7px;border-radius:{{ t.dotRadius }};background:{{ t.tagDot }}"></span>
+                        {{ t.statusLabel }}
+                      </span>
+                    </td>
+                    <td style="padding:14px 16px;border-bottom:1px solid #2A313D;text-align:right;font-variant-numeric:tabular-nums">{{ t.production }}</td>
+                    <td style="padding:14px 16px;border-bottom:1px solid #2A313D;text-align:right;font-variant-numeric:tabular-nums">{{ t.load }}</td>
+                    <td style="padding:14px 16px;border-bottom:1px solid #2A313D;text-align:right;font-variant-numeric:tabular-nums;color:#9AA4B2">{{ t.capacity }}</td>
+                    <td style="padding:14px 16px;border-bottom:1px solid #2A313D">{{ t.pump }}</td>
+                    <td style="padding:14px 16px;border-bottom:1px solid #2A313D;text-align:right;font-variant-numeric:tabular-nums;color:#9AA4B2">{{ t.runtime }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSketch }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:32px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap">
+          <div>
+            <h1 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-0.01em">{{ sketchTitle }}</h1>
+            <p style="margin:4px 0 0;font-size:13px;color:#9AA4B2">{{ sketchSub }}</p>
+          </div>
+          <div style="font-size:11px;font-family:ui-monospace,Menlo,monospace;color:#9AA4B2;border:1px solid #2A313D;border-radius:8px;padding:6px 10px">skisse — samme mal</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          <sc-for list="{{ sketchCards }}" as="c" hint-placeholder-count="4">
+            <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;padding:16px">
+              <div style="font-size:12px;color:#9AA4B2">{{ c.label }}</div>
+              <div style="font-size:28px;font-weight:600;line-height:1.2;margin-top:6px">{{ c.value }} <span style="font-size:13px;font-weight:400;color:#9AA4B2">{{ c.unit }}</span></div>
+              <div style="font-size:12px;color:#9AA4B2;margin-top:8px">{{ c.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;overflow:hidden">
+          <div style="padding:16px;border-bottom:1px solid #2A313D;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+            <h2 style="margin:0;font-size:14px;font-weight:600">{{ sketchContentTitle }}</h2>
+            <span style="font-size:12px;color:#9AA4B2">Innhold defineres i funksjonell spesifikasjon</span>
+          </div>
+          <div style="padding:24px">
+            <div style="height:300px;border:1px dashed #2A313D;border-radius:8px;background-image:repeating-linear-gradient(135deg,#1E252F 0 8px,#1B212B 8px 16px);display:flex;align-items:center;justify-content:center">
+              <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#9AA4B2">{{ sketchPlaceholder }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isReport }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:24px;max-width:1080px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap">
+          <div>
+            <h1 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-0.01em">Rapport</h1>
+            <p style="margin:4px 0 0;font-size:13px;color:#9AA4B2">Daglig produksjonsrapport, klar for eksport</p>
+          </div>
+          <button type="button" data-focus="1" onClick="{{ exportReport }}" style="display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;border:1px solid #2A313D;background:#1B212B;color:#E8EAED;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer" style-hover="background:#232A35;border-color:#3A4250">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1v8m0 0L4 6m3 3l3-3M2 11h10v2H2z" fill="none" stroke="#5FD3FF" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Eksporter til Excel
+          </button>
+        </div>
+
+        <div style="background:#1B212B;border:1px solid #2A313D;border-radius:8px;overflow:hidden">
+          <div style="padding:12px 16px;border-bottom:1px solid #2A313D;display:flex;align-items:center;gap:10px">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="2" fill="#5E8C6A"></rect><path d="M4 5h8M4 8h8M4 11h5" stroke="#0A1520" stroke-width="1.3" stroke-linecap="round"></path></svg>
+            <span style="font-size:13px;font-weight:500">{{ reportFilename }}</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="border-collapse:collapse;font-size:12px;min-width:760px">
+              <thead>
+                <tr>
+                  <th style="padding:6px 10px;border:1px solid #E1E4E8;background:#F7F8FA;color:#8A93A0;font-weight:500;min-width:32px"></th>
+                  <sc-for list="{{ colLetters }}" as="l" hint-placeholder-count="7">
+                    <th style="padding:6px 10px;border:1px solid #E1E4E8;background:#F7F8FA;color:#8A93A0;font-weight:500;text-align:center">{{ l }}</th>
+                  </sc-for>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ sheetRows }}" as="row" hint-placeholder-count="13">
+                  <tr>
+                    <td style="padding:6px 10px;border:1px solid #E1E4E8;background:#F7F8FA;color:#8A93A0;text-align:center">{{ row.n }}</td>
+                    <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="7">
+                      <td style="{{ cell.style }}">{{ cell.value }}</td>
+                    </sc-for>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showStateHelp&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Damagochi&quot;},&quot;pixelScale&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:14,&quot;min&quot;:9,&quot;max&quot;:18,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Damagochi&quot;}}">
+const ON = "#5FD3FF", OFF = "transparent";
+
+const SPRITES = {
+  content: [
+    "....................",
+    "....................",
+    "........######......",
+    "......##########....",
+    ".....############...",
+    "....##############..",
+    "....##############..",
+    "....###..####..###..",
+    "....###..####..###..",
+    "....##############..",
+    "....##############..",
+    "....####.####.####..",
+    "....#####....#####..",
+    "....##############..",
+    ".....############...",
+    "......##########....",
+    "......##......##....",
+    "....................",
+    "....................",
+    "...................."
+  ],
+  thirsty: [
+    "....................",
+    "....................",
+    ".........####.......",
+    ".......########.....",
+    "......##########....",
+    "......##########....",
+    "...#..##########....",
+    "......##..##..##....",
+    "......##..##..##..#.",
+    "......##########....",
+    "......###....###....",
+    "......###.##.###....",
+    "......##########....",
+    ".......########.....",
+    "........######......",
+    ".......##....##.....",
+    "....................",
+    "....................",
+    "....................",
+    "...................."
+  ],
+  drinking: [
+    ".........####.......",
+    ".........####.......",
+    "..........##........",
+    "....................",
+    "......###.##.###....",
+    ".....####....####...",
+    "....##############..",
+    "....##############..",
+    "....##############..",
+    "....###..####..###..",
+    "....##############..",
+    "....##############..",
+    "....##############..",
+    "....##############..",
+    "....##############..",
+    ".....############...",
+    "......##########....",
+    "......##......##....",
+    "....................",
+    "...................."
+  ],
+  needsPee: [
+    "....................",
+    "....................",
+    "........######......",
+    "......##########....",
+    ".....############...",
+    ".##.############.##.",
+    "...##############...",
+    "..####...###...###..",
+    "..################..",
+    "..################..",
+    "..######....######..",
+    "..################..",
+    "...##############...",
+    "....############....",
+    "......##########....",
+    ".......########.....",
+    "........##.##.......",
+    "........##.##.......",
+    ".......######.......",
+    "...................."
+  ],
+  peeing: [
+    "....................",
+    "....................",
+    ".......######.......",
+    ".....##########.....",
+    "....############....",
+    "...##############...",
+    "...##############...",
+    "...###..####..###...",
+    "...##############...",
+    "...####......####...",
+    "...#####....#####...",
+    "...##############...",
+    "...##############...",
+    "...##############...",
+    "....############....",
+    ".....##########.....",
+    "....##......##......",
+    "........##..........",
+    "........##..........",
+    ".....#########......"
+  ]
+};
+
+const COPY = {
+  thirsty: {
+    text: "Trenger pumping",
+    sub: "Damagochien er t\u00f8rst. Str\u00f8mmen er billig n\u00e5 \u2014 dette er tiden for \u00e5 pumpe."
+  },
+  drinking: {
+    text: "Pumper",
+    sub: "Damagochien drikker. Turbinene kj\u00f8rer motsatt vei og lagrer energi."
+  },
+  needsPee: {
+    text: "Klar til \u00e5 produsere",
+    sub: "Damagochien er stappmett og m\u00e5 t\u00f8mme seg. Nå b\u00f8r det produseres str\u00f8m."
+  },
+  peeing: {
+    text: "Produserer",
+    sub: "Damagochien t\u00f8mmer seg. Turbinene leverer str\u00f8m ut p\u00e5 nettet."
+  },
+  content: {
+    text: "Balansert drift",
+    sub: "Damagochien er forn\u00f8yd. Ingen tiltak trengs akkurat n\u00e5."
+  }
+};
+
+const NEEDS = ["thirsty", "needsPee"];
+
+const KPIS = [
+  { label: "Totalproduksjon", value: "127.0 MW" },
+  { label: "Inntekt (est.)", value: "42 799 NOK/t" },
+  { label: "Milj\u00f8kostnad", value: "11 119 NOK/t" },
+  { label: "Vanninntak", value: "37.4 m\u00b3/s" },
+  { label: "Magasinniv\u00e5", value: "19.8 %" },
+  { label: "Aktive turbiner", value: "4 / 6" },
+  { label: "Spotpris", value: "337.04 NOK/MWh" }
+];
+
+const NAV = [
+  { key: "damagochi", label: "Damagochi", icon: "iconDevice" },
+  { key: "turbiner", label: "Turbiner", icon: "iconTurbine" },
+  { key: "registrering", label: "Registrering", icon: "iconForm" },
+  { key: "turbinvurdering", label: "Turbinvurdering", icon: "iconBars" },
+  { key: "prisoptimering", label: "Prisoptimering", icon: "iconPrice" },
+  { key: "rapport", label: "Rapport", icon: "iconReport" }
+];
+
+const TURBINES = [
+  { id: "T1", status: "RUNNING", production: 52.4, load: 78, capacity: 67, pump: false, runtime: 48210 },
+  { id: "T2", status: "RUNNING", production: 48.9, load: 73, capacity: 67, pump: false, runtime: 45877 },
+  { id: "T3", status: "RUNNING", production: 28.1, load: 42, capacity: 67, pump: false, runtime: 61044 },
+  { id: "T4", status: "PUMPING", production: 54.8, load: 82, capacity: 67, pump: true, runtime: 39120 },
+  { id: "T5", status: "STANDBY", production: null, load: null, capacity: 34, pump: false, runtime: 30988 },
+  { id: "T6", status: "MAINTENANCE", production: null, load: null, capacity: 33, pump: false, runtime: 22009 }
+];
+
+const STATUS = {
+  RUNNING:     { label: "Aktiv",       bg: "rgba(94,140,106,.16)",  border: "#5E8C6A", dot: "#5E8C6A", radius: "50%" },
+  PUMPING:     { label: "Pumper",      bg: "rgba(76,107,138,.18)",  border: "#4C6B8A", dot: "#4C6B8A", radius: "1px" },
+  STANDBY:     { label: "Standby",     bg: "rgba(169,139,78,.16)",  border: "#A98B4E", dot: "#A98B4E", radius: "50%" },
+  MAINTENANCE: { label: "Vedlikehold", bg: "rgba(154,164,178,.12)", border: "#3A4250", dot: "#9AA4B2", radius: "1px" },
+  OFFLINE:     { label: "Offline",     bg: "rgba(154,164,178,.08)", border: "#3A4250", dot: "#6B7480", radius: "1px" }
+};
+
+const SHEET_COLS = ["A", "B", "C", "D", "E", "F", "G"];
+
+function buildSheetRows() {
+  const rows = [];
+  rows.push({ type: "title", cells: ["Solvann kraftverk \u2014 Produksjonsrapport", "", "", "", "", "", ""] });
+  rows.push({ type: "meta", cells: ["Dato:", "12.08.2026", "", "Spotpris:", "337,04 NOK/MWh", "", ""] });
+  rows.push({ type: "blank", cells: ["", "", "", "", "", "", ""] });
+  rows.push({ type: "header", cells: ["Turbin", "Status", "Produksjon (MW)", "Last (%)", "Kapasitet (MW)", "Pumpemodus", "Driftstid (t)"] });
+  TURBINES.forEach((t) => {
+    const s = STATUS[t.status];
+    rows.push({
+      type: "data",
+      cells: [
+        t.id,
+        s.label,
+        t.production === null ? "\u2014" : t.production.toFixed(1).replace(".", ","),
+        t.load === null ? "\u2014" : String(t.load),
+        String(t.capacity),
+        t.pump ? "Ja" : "Nei",
+        new Intl.NumberFormat("nb-NO").format(t.runtime)
+      ]
+    });
+  });
+  rows.push({ type: "blank", cells: ["", "", "", "", "", "", ""] });
+  rows.push({ type: "meta", cells: ["Totalproduksjon", "127,0 MW", "", "Inntekt (est.)", "42 799 NOK/t", "", ""] });
+  rows.push({ type: "meta", cells: ["Milj\u00f8kostnad", "11 119 NOK/t", "", "Vanninntak", "37,4 m\u00b3/s", "", ""] });
+  return rows;
+}
+
+function cellStyle(type, colIndex) {
+  const base = "padding:6px 10px;border:1px solid #E1E4E8;white-space:nowrap;background:#fff;color:#12161C;";
+  if (type === "title") return colIndex === 0 ? base + "font-weight:600;font-size:13px;" : base;
+  if (type === "meta") return colIndex % 3 === 0 ? base + "font-weight:600;color:#12161C;" : base + "color:#1F2430;";
+  if (type === "header") return base + "font-weight:600;background:#E4E7EB;color:#12161C;";
+  if (type === "blank") return base;
+  return base + "color:#1F2430;";
+}
+
+const SKETCHES = {
+  registrering: {
+    title: "Registrering",
+    sub: "Erstatter manuell f\u00f8ring i regneark",
+    contentTitle: "Registreringslogg",
+    placeholder: "tabell med registreringer",
+    cards: [
+      { label: "Registreringer i dag", value: "18", unit: "", note: "Av 24 forventede" },
+      { label: "Manglende felt", value: "3", unit: "", note: "Krever oppf\u00f8lging" },
+      { label: "Snitt tid per f\u00f8ring", value: "1,4", unit: "min", note: "Var 6 min i regneark" },
+      { label: "Siste f\u00f8ring", value: "09:00", unit: "", note: "Vaktskifte kl. 07" }
+    ]
+  },
+  turbinvurdering: {
+    title: "Turbinvurdering",
+    sub: "Tilstand og utvikling per turbin over tid",
+    contentTitle: "Utvikling over tid",
+    placeholder: "graf: vibrasjon og lagertemperatur",
+    cards: [
+      { label: "Turbiner vurdert", value: "6", unit: "/ 6", note: "Sist gjennomgang 04.08" },
+      { label: "Under 40 % last", value: "0", unit: "t", note: "Siste 24 timer" },
+      { label: "H\u00f8yeste vibrasjon", value: "2,8", unit: "mm/s", note: "T3 \u2014 innenfor grense" },
+      { label: "Neste vedlikehold", value: "12", unit: "dager", note: "T6 p\u00e5g\u00e5r n\u00e5" }
+    ]
+  },
+  prisoptimering: {
+    title: "Prisoptimering",
+    sub: "Spotpris, pumping og milj\u00f8kostnad sett sammen",
+    contentTitle: "Pris og produksjon per time",
+    placeholder: "graf: spotpris mot produksjon og pumping",
+    cards: [
+      { label: "Spotpris NO5", value: "412,60", unit: "NOK/MWh", note: "Neste time: 388,10" },
+      { label: "Inntekt (est.)", value: "76 004", unit: "NOK/t", note: "Siste 24 t: 1,7 mill." },
+      { label: "Milj\u00f8kostnad", value: "0", unit: "NOK/t", note: "Innenfor konsesjonskrav" },
+      { label: "Pumpevindu", value: "02\u201305", unit: "", note: "Lavpris i natt" }
+    ]
+  }
+};
+
+class Component extends DCLogic {
+  state = { page: "damagochi", mood: "thirsty", needIdx: 0 };
+
+  go(page) {
+    return () => this.setState({ page });
+  }
+
+  act(mood) {
+    return () => this.setState({ mood });
+  }
+
+  neutral() {
+    return () =>
+      this.setState((s) => {
+        if (s.mood === "drinking" || s.mood === "peeing") return { mood: "content" };
+        const next = (s.needIdx + 1) % NEEDS.length;
+        return { mood: NEEDS[next], needIdx: next };
+      });
+  }
+
+  exportReport() {
+    return () => {
+      const rows = buildSheetRows();
+      const csv = rows
+        .map((r) => r.cells.map((c) => '"' + String(c).replace(/"/g, '""') + '"').join(";"))
+        .join("\r\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Produksjonsrapport_2026-08-12.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+  }
+
+  renderVals() {
+    const page = this.state.page;
+    const mood = this.state.mood;
+    const scale = this.props.pixelScale ?? 14;
+    const showHelp = this.props.showStateHelp ?? true;
+
+    const nav = NAV.map((n) => {
+      const active = n.key === page;
+      const v = {
+        label: n.label,
+        go: this.go(n.key),
+        current: active ? "page" : undefined,
+        bg: active ? "#1B212B" : "transparent",
+        fg: active ? "#E8EAED" : "#9AA4B2",
+        weight: active ? 600 : 400,
+        iconFill: active ? "#4C6B8A" : "#454E5C",
+        iconLine: active ? "#E8EAED" : "#9AA4B2"
+      };
+      v[n.icon] = true;
+      return v;
+    });
+
+    const sprite = SPRITES[mood].map((row) =>
+      row.split("").map((c) => (c === "#" ? ON : OFF))
+    );
+
+    const controls = [
+      { label: "Pump", go: this.act("drinking") },
+      { label: "N\u00f8ytral", go: this.neutral() },
+      { label: "Kj\u00f8r", go: this.act("peeing") }
+    ];
+
+    const turbines = TURBINES.map((t) => {
+      const s = STATUS[t.status];
+      return {
+        id: t.id,
+        statusLabel: s.label,
+        tagBg: s.bg,
+        tagBorder: s.border,
+        tagDot: s.dot,
+        dotRadius: s.radius,
+        production: t.production === null ? "\u2014" : t.production.toFixed(1).replace(".", ",") + " MW",
+        load: t.load === null ? "\u2014" : t.load + " %",
+        capacity: t.capacity + " MW",
+        pump: t.pump ? "Ja" : "Nei",
+        runtime: new Intl.NumberFormat("nb-NO").format(t.runtime) + " t"
+      };
+    });
+
+    const isPumping = mood === "drinking";
+    const isRunning = mood === "peeing";
+    const showActiveTurbines = isPumping || isRunning;
+    const activeTurbinesLabel = isPumping ? "Pumper med" : isRunning ? "Produserer med" : "";
+    const turbineChips = showActiveTurbines
+      ? TURBINES.map((t) => {
+          const active = isPumping ? t.pump === true : t.status === "RUNNING";
+          const tint = isPumping ? "#4C6B8A" : "#5E8C6A";
+          return {
+            id: t.id,
+            bg: active ? tint + "2A" : "rgba(154,164,178,.06)",
+            border: active ? tint : "#2A313D",
+            fg: active ? "#E8EAED" : "#5A6472",
+            dot: active ? tint : "#454E5C"
+          };
+        })
+      : [];
+
+    const sk = SKETCHES[page];
+
+    const sheetRows = buildSheetRows().map((r, i) => ({
+      n: i + 1,
+      cells: r.cells.map((value, ci) => ({ value, style: cellStyle(r.type, ci) }))
+    }));
+
+    return {
+      nav,
+      sprite,
+      pixel: scale,
+      stateText: COPY[mood].text,
+      stateSub: showHelp ? COPY[mood].sub : "",
+      controls,
+      turbines,
+      kpis: KPIS,
+      showActiveTurbines,
+      activeTurbinesLabel,
+      turbineChips,
+      isGame: page === "damagochi",
+      isTurbines: page === "turbiner",
+      isReport: page === "rapport",
+      isSketch: !!sk,
+      sketchTitle: sk ? sk.title : "",
+      sketchSub: sk ? sk.sub : "",
+      sketchContentTitle: sk ? sk.contentTitle : "",
+      sketchPlaceholder: sk ? sk.placeholder : "",
+      sketchCards: sk ? sk.cards : [],
+      colLetters: SHEET_COLS,
+      sheetRows,
+      reportFilename: "Produksjonsrapport_2026-08-12.xlsx",
+      exportReport: this.exportReport()
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-6);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ds-size-2);
+}
+
+.spinnerCenter {
+  display: flex;
+  justify-content: center;
+  padding: var(--ds-size-12);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) 1fr;
+  gap: var(--ds-size-10);
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Device column ─────────────────────────────────────────── */
+.deviceColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-size-6);
+}
+
+.deviceHeading {
+  text-align: center;
+}
+
+.deviceSubtitle {
+  color: var(--ds-color-neutral-text-subtle);
+  margin-top: var(--ds-size-1);
+}
+
+.device {
+  background: linear-gradient(180deg, #2a8ce0 0%, #1c7ed6 42%, #166bb8 100%);
+  border-radius: 40px;
+  padding: var(--ds-size-6);
+  border: 1px solid #3d96e4;
+  width: 396px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.deviceBezel {
+  background: #0f5fa8;
+  border-radius: 20px;
+  padding: var(--ds-size-3);
+  border-top: 1px solid #1a73c2;
+  border-bottom: 1px solid #0b4c87;
+}
+
+.screen {
+  background: #0a1520;
+  border-radius: 10px;
+  padding: var(--ds-size-4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spriteGrid {
+  display: flex;
+  flex-direction: column;
+}
+
+.spriteRow {
+  display: flex;
+}
+
+.pixel {
+  width: 14px;
+  height: 14px;
+}
+
+.controls {
+  display: flex;
+  gap: var(--ds-size-2);
+  margin-top: var(--ds-size-6);
+}
+
+.controlButton {
+  flex: 1;
+  min-width: 44px;
+  min-height: 60px;
+  padding: var(--ds-size-2) var(--ds-size-1);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--ds-font-size-4);
+  font-weight: 500;
+  color: #f2f8ff;
+  border-radius: 14px;
+  border-top: 1px solid #6fb4ee;
+  border-left: 1px solid #2a8ce0;
+  border-right: 1px solid #0b4c87;
+  border-bottom: 4px solid #072f55;
+  background: linear-gradient(180deg, #166bb8 0%, #0b4c87 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.controlButton:hover {
+  background: linear-gradient(180deg, #1a78c9 0%, #0e568f 100%);
+  border-top-color: #8fc6f5;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.controlButton:active {
+  border-bottom-width: 1px;
+  margin-top: 3px;
+  background: linear-gradient(180deg, #0b4c87 0%, #166bb8 100%);
+}
+
+.stateBlock {
+  text-align: center;
+  max-width: 380px;
+}
+
+.stateText {
+  margin: 0;
+}
+
+.stateSub {
+  margin-top: var(--ds-size-2);
+  color: var(--ds-color-neutral-text-subtle);
+  text-wrap: pretty;
+}
+
+/* ── KPI column ────────────────────────────────────────────── */
+.kpiColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpiHeading {
+  margin: 0 0 var(--ds-size-1) 0;
+  color: var(--ds-color-neutral-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpiRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--ds-size-3) 0;
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.kpiLabel {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-3);
+}
+
+.kpiValue {
+  font-size: var(--ds-font-size-5);
+  font-weight: var(--ds-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.chipsCard {
+  margin-top: var(--ds-size-5);
+}
+
+.chipsLabel {
+  color: var(--ds-color-neutral-text-subtle);
+  margin-bottom: var(--ds-size-2);
+}
+
+.chipList {
+  display: flex;
+  gap: var(--ds-size-2);
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+  padding: var(--ds-size-1) var(--ds-size-2);
+  border-radius: var(--ds-border-radius-md);
+  font-size: var(--ds-font-size-2);
+  font-weight: 500;
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  background: var(--ds-color-neutral-background-default);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.chip.chipActive {
+  color: var(--ds-color-neutral-text-default);
+}
+
+.chipDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentcolor;
+}

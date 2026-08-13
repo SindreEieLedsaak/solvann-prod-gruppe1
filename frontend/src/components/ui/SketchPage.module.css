@@ -1,0 +1,43 @@
+.sketchBadge {
+  font-size: var(--ds-font-size-1);
+  font-family: ui-monospace, Menlo, monospace;
+  color: var(--ds-color-neutral-text-subtle);
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-md);
+  padding: var(--ds-size-1) var(--ds-size-2);
+  white-space: nowrap;
+}
+
+.contentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--ds-size-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--ds-size-4);
+}
+
+.contentNote {
+  font-size: var(--ds-font-size-2);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.placeholderBox {
+  height: 300px;
+  border: 1px dashed var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-md);
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--ds-color-neutral-background-default) 0 8px,
+    var(--ds-color-neutral-surface-hover) 8px 16px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholderText {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: var(--ds-font-size-2);
+  color: var(--ds-color-neutral-text-subtle);
+}

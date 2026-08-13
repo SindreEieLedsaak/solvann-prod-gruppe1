@@ -42,3 +42,8 @@ logs/
 *.tmp
 
 .DS_Store
+
+CLAUDE.md
+.claude
+.agents
+.skills-lock.json

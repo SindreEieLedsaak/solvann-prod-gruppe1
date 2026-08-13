@@ -51,12 +51,12 @@ export function MarketPage() {
             <CardBlock>
               <div className={styles.statCard}>
                 <span className={styles.statLabel}>Markedsstatus</span>
-                <div style={{ marginTop: 'var(--ds-spacing-1)' }}>
+                <div style={{ marginTop: 'var(--ds-size-1)' }}>
                   <Tag data-color={marketTagColor(data.status)}>{data.status}</Tag>
                 </div>
                 <Paragraph
                   data-size="sm"
-                  style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: 'var(--ds-spacing-2)' }}
+                  style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: 'var(--ds-size-2)' }}
                 >
                   {data.timestamp}
                 </Paragraph>

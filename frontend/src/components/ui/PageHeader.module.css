@@ -1,7 +1,7 @@
 .header {
   background-color: var(--ds-color-neutral-background-default);
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
-  padding: var(--ds-spacing-3) var(--ds-spacing-4);
+  padding: var(--ds-size-3) var(--ds-size-4);
 }
 
 .inner {
@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ds-spacing-4);
+  gap: var(--ds-size-4);
 }
 
 .logo {
@@ -27,23 +27,34 @@
   margin: 0;
   padding: 0;
   display: flex;
-  gap: var(--ds-spacing-6);
+  flex-wrap: wrap;
+  gap: var(--ds-size-1);
 }
 
 .navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
   text-decoration: none;
-  color: var(--ds-color-neutral-text-default);
-  font-weight: 500;
-  padding: var(--ds-spacing-1) var(--ds-spacing-2);
-  border-radius: var(--ds-border-radius-sm);
-  transition: background-color 0.15s ease;
+  color: var(--ds-color-neutral-text-subtle);
+  font-weight: 400;
+  padding: var(--ds-size-2) var(--ds-size-3);
+  border-radius: var(--ds-border-radius-md);
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navLink svg {
+  flex: 0 0 18px;
 }
 
 .navLink:hover {
-  background-color: var(--ds-color-neutral-background-hover);
+  background-color: var(--ds-color-neutral-surface-hover);
+  color: var(--ds-color-neutral-text-default);
 }
 
 .navLink.active {
-  color: var(--ds-color-accent-text-default);
+  background-color: var(--ds-color-neutral-surface-hover);
+  color: var(--ds-color-neutral-text-default);
   font-weight: 600;
 }

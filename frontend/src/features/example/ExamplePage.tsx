@@ -39,24 +39,24 @@ export function ExamplePage() {
 
   return (
     <div style={{ maxWidth: '720px' }}>
-      <Heading data-size="2xl" level={1} style={{ marginBottom: 'var(--ds-spacing-2)' }}>
+      <Heading data-size="2xl" level={1} style={{ marginBottom: 'var(--ds-size-2)' }}>
         Example: Items
       </Heading>
-      <Paragraph data-size="sm" style={{ marginBottom: 'var(--ds-spacing-6)' }}>
+      <Paragraph data-size="sm" style={{ marginBottom: 'var(--ds-size-6)' }}>
         This page demonstrates full-stack communication: a React frontend calling a Flask REST API.
         Data is stored in memory — replace{' '}
         <code>backend/app/services/example_service.py</code> with a database repository when ready.
       </Paragraph>
 
       {/* Add item form */}
-      <Card style={{ marginBottom: 'var(--ds-spacing-6)' }}>
+      <Card style={{ marginBottom: 'var(--ds-size-6)' }}>
         <CardBlock>
-          <Heading data-size="md" level={2} style={{ marginBottom: 'var(--ds-spacing-4)' }}>
+          <Heading data-size="md" level={2} style={{ marginBottom: 'var(--ds-size-4)' }}>
             Add item
           </Heading>
           <form onSubmit={handleSubmit}>
             <div
-              style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ds-spacing-3)' }}
+              style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ds-size-3)' }}
             >
               <Textfield
                 label="Name"
@@ -88,17 +88,17 @@ export function ExamplePage() {
 
       {/* Item list */}
       {error && (
-        <Alert data-color="danger" style={{ marginBottom: 'var(--ds-spacing-4)' }}>
+        <Alert data-color="danger" style={{ marginBottom: 'var(--ds-size-4)' }}>
           <Paragraph data-size="sm">Could not load items: {error}</Paragraph>
         </Alert>
       )}
 
       {isLoading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--ds-spacing-8)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--ds-size-8)' }}>
           <Spinner aria-label="Loading items…" />
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ds-spacing-3)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ds-size-3)' }}>
           {items.length === 0 ? (
             <Paragraph data-size="sm">No items yet. Add one above.</Paragraph>
           ) : (

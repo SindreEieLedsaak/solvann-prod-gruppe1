@@ -1,7 +1,7 @@
 .footer {
-  background-color: var(--ds-color-neutral-background-subtle);
+  background-color: var(--ds-color-neutral-background-tinted);
   border-top: 1px solid var(--ds-color-neutral-border-subtle);
-  padding: var(--ds-spacing-4) var(--ds-spacing-4);
+  padding: var(--ds-size-4) var(--ds-size-4);
 }
 
 .inner {

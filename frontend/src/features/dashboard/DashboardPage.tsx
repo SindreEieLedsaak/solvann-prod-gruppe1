@@ -159,7 +159,7 @@ export function DashboardPage() {
         <>
           {/* ── Plant status KPIs ── */}
           <div>
-            <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+            <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
               Anleggsstatus
             </Heading>
             <div className={styles.statsGrid}>
@@ -183,7 +183,7 @@ export function DashboardPage() {
           {/* ── Turbine table ── */}
           <Card>
             <CardBlock>
-              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
                 Turbinstatus
               </Heading>
               <Table>
@@ -212,10 +212,10 @@ export function DashboardPage() {
             {/* Reservoir */}
             <Card>
               <CardBlock>
-                <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+                <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
                   Magasin
                 </Heading>
-                <div className={styles.statCard} style={{ gap: 'var(--ds-spacing-2)' }}>
+                <div className={styles.statCard} style={{ gap: 'var(--ds-size-2)' }}>
                   <div>
                     <span className={styles.statLabel}>Nivå</span>
                     <div className={styles.statValue}>
@@ -244,10 +244,10 @@ export function DashboardPage() {
             {/* Market */}
             <Card>
               <CardBlock>
-                <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+                <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
                   Marked
                 </Heading>
-                <div className={styles.statCard} style={{ gap: 'var(--ds-spacing-2)' }}>
+                <div className={styles.statCard} style={{ gap: 'var(--ds-size-2)' }}>
                   <div>
                     <span className={styles.statLabel}>Spotpris NO5</span>
                     <div className={styles.statValue}>
@@ -257,7 +257,7 @@ export function DashboardPage() {
                   </div>
                   <div>
                     <span className={styles.statLabel}>Markedsstatus</span>
-                    <div style={{ marginTop: 'var(--ds-spacing-1)' }}>
+                    <div style={{ marginTop: 'var(--ds-size-1)' }}>
                       <Tag data-color={marketTagColor(mkt.status)}>{mkt.status}</Tag>
                     </div>
                   </div>
@@ -268,10 +268,10 @@ export function DashboardPage() {
             {/* Solar */}
             <Card>
               <CardBlock>
-                <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+                <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
                   Solenergi
                 </Heading>
-                <div className={styles.statCard} style={{ gap: 'var(--ds-spacing-2)' }}>
+                <div className={styles.statCard} style={{ gap: 'var(--ds-size-2)' }}>
                   <div>
                     <span className={styles.statLabel}>Produksjon</span>
                     <div className={styles.statValue}>
@@ -300,7 +300,7 @@ export function DashboardPage() {
           {/* ── History / aggregated income ── */}
           <Card>
             <CardBlock>
-              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
                 Historikk (siste 24 t)
               </Heading>
               {history && history.sample_count > 0 ? (
@@ -332,7 +332,7 @@ export function DashboardPage() {
           {/* ── Hourly production log — for manual/spreadsheet reading ── */}
           <Card>
             <CardBlock>
-              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-spacing-3)' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: 'var(--ds-size-3)' }}>
                 Produksjon per time (siste 24 t)
               </Heading>
               {hourly && hourly.hour_count > 0 ? (
