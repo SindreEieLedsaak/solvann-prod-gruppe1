@@ -66,53 +66,58 @@ export function DamagochiPage() {
       )}
 
       <div className={styles.layout}>
-        <div className={styles.deviceColumn}>
-          <div className={styles.deviceHeading}>
-            <Heading level={2} data-size="sm">
-              Damagochi
-            </Heading>
-            <Paragraph data-size="sm" className={styles.deviceSubtitle}>
-              Produksjonsbehovet, som en liten skjerm å passe på.
-            </Paragraph>
-          </div>
+        <div className={styles.deviceHeading}>
+          <Heading level={2} data-size="xl" className={styles.deviceTitle}>
+            Damagochi
+          </Heading>
+        </div>
 
+        <div className={styles.deviceColumn}>
           <div className={styles.device}>
             <div className={styles.deviceBezel}>
               <div className={styles.screen}>
                 <div className={styles.spriteWrap} aria-hidden="true">
                   <Sprite />
                 </div>
+
+                <div className={styles.stateBlock}>
+                  <Paragraph data-size="md" className={styles.stateText}>
+                    <strong>{copy.text}</strong>
+                  </Paragraph>
+                  <Paragraph data-size="sm" className={styles.stateSub}>
+                    {copy.sub}
+                  </Paragraph>
+                </div>
               </div>
             </div>
 
             <div className={styles.controls}>
-              <button type="button" className={styles.controlButton} onClick={pump}>
+              <button
+                type="button"
+                className={[styles.controlButton, styles.controlButtonPump].join(' ')}
+                onClick={pump}
+              >
                 Pump
               </button>
-              <button type="button" className={styles.controlButton} onClick={neutral}>
+              <button
+                type="button"
+                className={[styles.controlButton, styles.controlButtonNeutral].join(' ')}
+                onClick={neutral}
+              >
                 Nøytral
               </button>
-              <button type="button" className={styles.controlButton} onClick={produce}>
+              <button
+                type="button"
+                className={[styles.controlButton, styles.controlButtonRun].join(' ')}
+                onClick={produce}
+              >
                 Kjør
               </button>
             </div>
           </div>
-
-          <div className={styles.stateBlock}>
-            <Paragraph data-size="md" className={styles.stateText}>
-              <strong>{copy.text}</strong>
-            </Paragraph>
-            <Paragraph data-size="sm" className={styles.stateSub}>
-              {copy.sub}
-            </Paragraph>
-          </div>
         </div>
 
         <div className={styles.kpiColumn}>
-          <Heading level={2} data-size="2xs" className={styles.kpiHeading}>
-            Nøkkeltall
-          </Heading>
-
           {ps && mkt && (
             <>
               <KpiRow label="Totalproduksjon" value={`${fmt(ps.total_production_mw)} MW`} />

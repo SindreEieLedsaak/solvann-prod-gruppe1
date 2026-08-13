@@ -38,9 +38,7 @@ export function PageHeader() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <Heading data-size="sm" level={1} className={styles.logo}>
-          <Link to="/" className={styles.logoLink}>
             Solvann
-          </Link>
         </Heading>
         <nav aria-label="Main navigation">
           <ul className={styles.navList}>

@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 // Designsystemet: component styles and default theme
 import '@digdir/designsystemet-css';
 import '@digdir/designsystemet-css/theme';
+import './index.css';
 
 import App from './app/App';
 
