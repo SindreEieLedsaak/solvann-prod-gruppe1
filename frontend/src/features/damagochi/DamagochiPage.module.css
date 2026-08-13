@@ -20,8 +20,8 @@
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 420px) 1fr;
-  gap: var(--ds-size-10);
+  grid-template-columns: minmax(0, 560px) 1fr;
+  gap: var(--ds-size-14);
   align-items: start;
 }
 
@@ -36,7 +36,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ds-size-6);
+  gap: var(--ds-size-8);
+  width: 100%;
 }
 
 .deviceHeading {
@@ -50,55 +51,52 @@
 
 .device {
   background: linear-gradient(180deg, #2a8ce0 0%, #1c7ed6 42%, #166bb8 100%);
-  border-radius: 40px;
-  padding: var(--ds-size-6);
+  border-radius: 48px;
+  padding: var(--ds-size-8);
   border: 1px solid #3d96e4;
-  width: 396px;
+  width: 480px;
   max-width: 100%;
   box-sizing: border-box;
 }
 
 .deviceBezel {
   background: #0f5fa8;
-  border-radius: 20px;
-  padding: var(--ds-size-3);
+  border-radius: 24px;
+  padding: var(--ds-size-4);
   border-top: 1px solid #1a73c2;
   border-bottom: 1px solid #0b4c87;
 }
 
 .screen {
   background: #0a1520;
-  border-radius: 10px;
-  padding: var(--ds-size-4);
+  border-radius: 12px;
+  padding: var(--ds-size-6);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.spriteGrid {
-  display: flex;
-  flex-direction: column;
+.spriteWrap {
+  width: 280px;
+  max-width: 100%;
 }
 
-.spriteRow {
-  display: flex;
-}
-
-.pixel {
-  width: 14px;
-  height: 14px;
+.spriteWrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .controls {
   display: flex;
-  gap: var(--ds-size-2);
-  margin-top: var(--ds-size-6);
+  gap: var(--ds-size-3);
+  margin-top: var(--ds-size-8);
 }
 
 .controlButton {
   flex: 1;
   min-width: 44px;
-  min-height: 60px;
+  min-height: 68px;
   padding: var(--ds-size-2) var(--ds-size-1);
   cursor: pointer;
   font-family: inherit;
@@ -128,7 +126,7 @@
 
 .stateBlock {
   text-align: center;
-  max-width: 380px;
+  max-width: 440px;
 }
 
 .stateText {
@@ -136,7 +134,7 @@
 }
 
 .stateSub {
-  margin-top: var(--ds-size-2);
+  margin-top: var(--ds-size-3);
   color: var(--ds-color-neutral-text-subtle);
   text-wrap: pretty;
 }

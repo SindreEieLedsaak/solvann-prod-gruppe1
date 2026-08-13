@@ -6,8 +6,6 @@ import type { Turbine } from '../../types/plant';
 import { COPY, NEEDS, SPRITES, type Mood } from './sprites';
 import styles from './DamagochiPage.module.css';
 
-const PIXEL_ON = '#5FD3FF';
-
 function fmt(n: number, decimals = 1) {
   return n.toFixed(decimals);
 }
@@ -37,12 +35,13 @@ export function DamagochiPage() {
     setState((s) => {
       if (s.mood === 'drinking' || s.mood === 'peeing') return { ...s, mood: 'content' };
       const next = (s.needIdx + 1) % NEEDS.length;
+      console.log(NEEDS[next]);
       return { mood: NEEDS[next], needIdx: next };
     });
   }
 
   const copy = COPY[state.mood];
-  const sprite = SPRITES[state.mood];
+  const Sprite = SPRITES[state.mood];
   const isPumping = state.mood === 'drinking';
   const isRunning = state.mood === 'peeing';
   const showTurbineChips = isPumping || isRunning;
@@ -52,11 +51,7 @@ export function DamagochiPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.topBar}>
-        <Heading level={1} data-size="lg">
-          Damagochi
-        </Heading>
-      </div>
+
 
       {error && (
         <Alert data-color="danger">
@@ -84,18 +79,8 @@ export function DamagochiPage() {
           <div className={styles.device}>
             <div className={styles.deviceBezel}>
               <div className={styles.screen}>
-                <div className={styles.spriteGrid} aria-hidden="true">
-                  {sprite.map((row, ri) => (
-                    <div key={ri} className={styles.spriteRow}>
-                      {row.split('').map((px, ci) => (
-                        <div
-                          key={ci}
-                          className={styles.pixel}
-                          style={{ background: px === '#' ? PIXEL_ON : 'transparent' }}
-                        />
-                      ))}
-                    </div>
-                  ))}
+                <div className={styles.spriteWrap} aria-hidden="true">
+                  <Sprite />
                 </div>
               </div>
             </div>

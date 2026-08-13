@@ -9,8 +9,8 @@
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--ds-size-4);
+  justify-content: center;
+  gap: var(--ds-size-10);
 }
 
 .logo {
