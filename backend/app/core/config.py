@@ -10,10 +10,16 @@ class Settings:
     DEBUG: bool = os.getenv("FLASK_DEBUG", "true").lower() == "true"
     SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 
-    # Comma-separated list of allowed origins for CORS
-    CORS_ORIGINS: list[str] = os.getenv(
-        "CORS_ORIGINS", "http://localhost:5173"
-    ).split(",")
+    # Comma-separated list of allowed origins for CORS. Include the common local
+    # browser and Docker hostnames so the Vite frontend can fetch API data in dev.
+    CORS_ORIGINS: list[str] = [
+        origin.strip()
+        for origin in os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:5173,http://127.0.0.1:5173,http://frontend:5173",
+        ).split(",")
+        if origin.strip()
+    ]
 
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 
