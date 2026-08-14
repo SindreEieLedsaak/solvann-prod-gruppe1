@@ -55,7 +55,12 @@ def _init_history_collector(app: Flask) -> None:
     """
     if app.config.get("TESTING") or not settings.ENABLE_HISTORY_COLLECTOR:
         return
-    if app.config.get("DEBUG") and os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+    # The Werkzeug development server starts a parent process before the
+    # reloader child. Gunicorn's ``--reload`` does not set WERKZEUG_RUN_MAIN,
+    # so Docker Compose identifies its worker explicitly.
+    is_werkzeug_child = os.environ.get("WERKZEUG_RUN_MAIN") == "true"
+    is_collector_process = os.environ.get("HISTORY_COLLECTOR_PROCESS") == "true"
+    if app.config.get("DEBUG") and not (is_werkzeug_child or is_collector_process):
         return
 
     from .services import history_service, mock_data_service

@@ -36,6 +36,9 @@ services:
     environment:
       FLASK_ENV: development
       FLASK_DEBUG: "true"
+      # Gunicorn's reloader is not Werkzeug's, so it needs to opt in to the
+      # background collector explicitly.
+      HISTORY_COLLECTOR_PROCESS: "true"
       DATABASE_URL: postgresql://solvann:solvann@db:5432/solvann
     depends_on:
       - db

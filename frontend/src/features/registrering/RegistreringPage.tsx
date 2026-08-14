@@ -1,29 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { Card, CardBlock, Heading, Paragraph, Spinner } from '@digdir/designsystemet-react';
 import dashStyles from '../dashboard/DashboardPage.module.css';
 import { usePolling } from '../../hooks/usePolling';
 import { plantService } from '../../services/plantService';
 
-type TurbineValue = number | 'STANDBY';
-
-type KeyDataLog = {
-  producedAt: string;
-  reservoirLevelPct: number;
-  outflowM3s: number;
-  spotPriceNokMwh: number;
-  turbines: Record<string, TurbineValue>;
-  solarKw: number;
-  environmentalCostNok: number;
-  totalProductionMw: number;
-  revenueNokH: number;
-};
-
-const turbineColumns = ['T-01', 'T-02', 'T-03', 'T-04', 'T-05'];
-
-function formatTime(value: string) {
+function formatDateTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return date.toLocaleString('nb-NO', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 }
 
 function formatNumber(value: number, digits = 1) {
@@ -33,47 +23,33 @@ function formatNumber(value: number, digits = 1) {
   });
 }
 
-function asTurbineMap(data: { turbines: { id: string; status: string; production_mw: number }[] } | null) {
-  const map: Record<string, TurbineValue> = {};
-  if (!data) return map;
-
-  for (const turbine of data.turbines) {
-    map[turbine.id] = turbine.status === 'STANDBY' ? 'STANDBY' : turbine.production_mw;
-  }
-
-  return map;
-}
-
-function turbineCell(value: TurbineValue) {
-  if (value === 'STANDBY') return 'STANDBY';
-  return formatNumber(value, 1);
-}
-
 export function RegistreringPage() {
-  const { data, loading, error } = usePolling(() => plantService.getOverview(), 5000);
-  const { data: hourly } = usePolling(() => plantService.getHourlyHistory(24), 30000);
-  const [logs, setLogs] = useState<KeyDataLog[]>([]);
+  const {
+    data: history,
+    loading: historyLoading,
+    error: historyError,
+  } = usePolling(() => plantService.getHistory(24), 1000);
+  const {
+    data: hourly,
+    loading: hourlyLoading,
+    error: hourlyError,
+  } = usePolling(() => plantService.getHourlyHistory(24), 1000);
 
-  useEffect(() => {
-    if (!data) return;
+  const latestRawPoint = history?.points.at(-1);
+  const latestHourlyPoint = hourly?.points.at(-1);
 
-    const snapshot: KeyDataLog = {
-      producedAt: data.timestamp,
-      reservoirLevelPct: data.plant_status.reservoir_level_pct,
-      outflowM3s: data.reservoir.outflow_m3s,
-      spotPriceNokMwh: data.market.price_nok_mwh,
-      turbines: asTurbineMap(data),
-      solarKw: data.solar.production_kw,
-      environmentalCostNok: data.plant_status.environmental_cost_nok_h,
-      totalProductionMw: data.plant_status.total_production_mw,
-      revenueNokH: data.plant_status.revenue_nok_h,
-    };
+  const latestRawRows = useMemo(() => {
+    if (!history) return [];
+    return [...history.points].slice(-10).reverse();
+  }, [history]);
 
-    console.log('[Logger]', snapshot);
-    setLogs((prev) => [snapshot, ...prev].slice(0, 10));
-  }, [data]);
+  const latestHourlyRows = useMemo(() => {
+    if (!hourly) return [];
+    return [...hourly.points].slice(-8).reverse();
+  }, [hourly]);
 
-  const hourlyAverage = hourly?.points.at(-1);
+  const combinedError = historyError ?? hourlyError;
+  const loading = (historyLoading && !history) || (hourlyLoading && !hourly);
 
   return (
     <div className={dashStyles.page}>
@@ -88,17 +64,17 @@ export function RegistreringPage() {
         </div>
       </div>
 
-      {error && (
+      {combinedError && (
         <div style={{ marginBottom: '1rem' }}>
           <Card>
             <CardBlock>
-              <Paragraph data-color="danger">Datafeil: {error}</Paragraph>
+              <Paragraph data-color="danger">Datafeil: {combinedError}</Paragraph>
             </CardBlock>
           </Card>
         </div>
       )}
 
-      {loading && !data && (
+      {loading && (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem 0' }}>
           <Spinner aria-label="Henter data..." />
         </div>
@@ -107,10 +83,10 @@ export function RegistreringPage() {
       <Card style={{ marginBottom: '1rem' }}>
         <CardBlock>
           <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
-            Tidsgjennomsnitt
+            Siste historikkmåling (GET /api/plant/history)
           </Heading>
 
-          {hourlyAverage ? (
+          {latestRawPoint ? (
             <div
               style={{
                 display: 'grid',
@@ -119,21 +95,18 @@ export function RegistreringPage() {
                 fontSize: '0.8rem',
               }}
             >
-              <SummaryCell label="Tid" value={hourlyAverage.hour.slice(11, 16)} />
-              <SummaryCell label="Magasin" value={`${formatNumber(hourlyAverage.avg_reservoir_level_pct, 2)} %`} />
-              <SummaryCell label="Avløp" value={`${formatNumber(hourlyAverage.energy_mwh, 2)} MWh`} />
-              <SummaryCell label="Spot" value={`${formatNumber(hourlyAverage.avg_price_nok_mwh, 2)} NOK`} />
-              <SummaryCell label="T-01" value={formatNumber(hourlyAverage.avg_production_mw, 2)} />
-              <SummaryCell label="T-02" value={formatNumber(hourlyAverage.avg_production_mw, 2)} />
-              <SummaryCell label="T-03" value={formatNumber(hourlyAverage.avg_production_mw, 2)} />
-              <SummaryCell label="T-04" value="0" />
-              <SummaryCell label="T-05" value={formatNumber(hourlyAverage.avg_production_mw, 2)} />
-              <SummaryCell label="Sol" value={`${formatNumber(hourlyAverage.energy_mwh, 2)} kW`} />
-              <SummaryCell label="Miljø" value={`${formatNumber(hourlyAverage.environmental_cost_nok, 0)} NOK`} />
-              <SummaryCell label="Prod." value={`${formatNumber(hourlyAverage.avg_production_mw, 2)} MW`} />
+              <SummaryCell label="Tid" value={formatDateTime(latestRawPoint.timestamp)} />
+              <SummaryCell label="Produksjon" value={`${formatNumber(latestRawPoint.total_production_mw, 2)} MW`} />
+              <SummaryCell label="Inntekt" value={`${formatNumber(latestRawPoint.revenue_nok_h, 0)} NOK/h`} />
+              <SummaryCell
+                label="Miljøkost"
+                value={`${formatNumber(latestRawPoint.environmental_cost_nok_h, 0)} NOK/h`}
+              />
+              <SummaryCell label="Spot" value={`${formatNumber(latestRawPoint.price_nok_mwh, 2)} NOK/MWh`} />
+              <SummaryCell label="Magasin" value={`${formatNumber(latestRawPoint.reservoir_level_pct, 2)} %`} />
             </div>
           ) : (
-            <Paragraph>Ingen tidsgjennomsnitt tilgjengelig ennå.</Paragraph>
+            <Paragraph>Ingen historikk tilgjengelig ennå.</Paragraph>
           )}
         </CardBlock>
       </Card>
@@ -142,22 +115,52 @@ export function RegistreringPage() {
         <CardBlock>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
             <Heading level={2} data-size="sm">
-              Logg
+              Siste timegjennomsnitt (GET /api/plant/history/hourly)
             </Heading>
             <span style={{ fontSize: '0.8rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-              {logs.length} poster
+              {hourly?.hour_count ?? 0} timer
             </span>
           </div>
 
-          {logs.length === 0 ? (
-            <Paragraph>Ingen loggpostinger ennå.</Paragraph>
+          {latestHourlyPoint ? (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                gap: '0.5rem',
+                fontSize: '0.8rem',
+                marginBottom: '0.75rem',
+              }}
+            >
+              <SummaryCell label="Time" value={formatDateTime(latestHourlyPoint.hour)} />
+              <SummaryCell label="Snitt prod." value={`${formatNumber(latestHourlyPoint.avg_production_mw, 2)} MW`} />
+              <SummaryCell label="Energi" value={`${formatNumber(latestHourlyPoint.energy_mwh, 2)} MWh`} />
+              <SummaryCell label="Inntekt" value={`${formatNumber(latestHourlyPoint.revenue_nok, 0)} NOK`} />
+              <SummaryCell label="Miljøkost" value={`${formatNumber(latestHourlyPoint.environmental_cost_nok, 0)} NOK`} />
+              <SummaryCell label="Spot snitt" value={`${formatNumber(latestHourlyPoint.avg_price_nok_mwh, 2)} NOK/MWh`} />
+              <SummaryCell label="Magasin snitt" value={`${formatNumber(latestHourlyPoint.avg_reservoir_level_pct, 2)} %`} />
+            </div>
+          ) : (
+            <Paragraph>Ingen timeaggregater tilgjengelig ennå.</Paragraph>
+          )}
+        </CardBlock>
+      </Card>
+
+      <Card style={{ marginBottom: '1rem' }}>
+        <CardBlock>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+            Historikk (siste 10 målinger)
+          </Heading>
+
+          {latestRawRows.length === 0 ? (
+            <Paragraph>Ingen historikkmålinger ennå.</Paragraph>
           ) : (
             <div style={{ maxHeight: '26rem', overflowY: 'auto', paddingRight: '0.25rem' }}>
               <div style={{ display: 'grid', gap: '0.5rem' }}>
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(110px, 1.4fr) repeat(11, minmax(70px, 1fr))',
+                    gridTemplateColumns: 'minmax(140px, 1.5fr) repeat(5, minmax(90px, 1fr))',
                     gap: '0.5rem',
                     padding: '0.5rem 0.75rem',
                     borderBottom: '1px solid var(--ds-color-neutral-border-subtle)',
@@ -167,25 +170,19 @@ export function RegistreringPage() {
                   }}
                 >
                   <span>Tid</span>
-                  <span>Magasin</span>
-                  <span>Avløp</span>
-                  <span>Spot</span>
-                  <span>T-01</span>
-                  <span>T-02</span>
-                  <span>T-03</span>
-                  <span>T-04</span>
-                  <span>T-05</span>
-                  <span>Sol</span>
-                  <span>Miljø</span>
-                  <span>Prod.</span>
+                  <span>Prod. (MW)</span>
+                  <span>Inntekt (NOK/h)</span>
+                  <span>Miljøkost (NOK/h)</span>
+                  <span>Spot (NOK/MWh)</span>
+                  <span>Magasin (%)</span>
                 </div>
 
-                {logs.map((log) => (
+                {latestRawRows.map((point) => (
                   <div
-                    key={`${log.producedAt}-${log.totalProductionMw}`}
+                    key={`${point.timestamp}-${point.total_production_mw}`}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: 'minmax(110px, 1.4fr) repeat(11, minmax(70px, 1fr))',
+                      gridTemplateColumns: 'minmax(140px, 1.5fr) repeat(5, minmax(90px, 1fr))',
                       gap: '0.5rem',
                       padding: '0.6rem 0.75rem',
                       border: '1px solid var(--ds-color-neutral-border-subtle)',
@@ -195,18 +192,74 @@ export function RegistreringPage() {
                       alignItems: 'center',
                     }}
                   >
-                    <span>{formatTime(log.producedAt)}</span>
-                    <span>{formatNumber(log.reservoirLevelPct, 1)} %</span>
-                    <span>{formatNumber(log.outflowM3s, 2)} m³/s</span>
-                    <span>{formatNumber(log.spotPriceNokMwh, 2)}</span>
-                    <span>{turbineCell(log.turbines['T-01'] ?? 'STANDBY')}</span>
-                    <span>{turbineCell(log.turbines['T-02'] ?? 'STANDBY')}</span>
-                    <span>{turbineCell(log.turbines['T-03'] ?? 'STANDBY')}</span>
-                    <span>{turbineCell(log.turbines['T-04'] ?? 'STANDBY')}</span>
-                    <span>{turbineCell(log.turbines['T-05'] ?? 'STANDBY')}</span>
-                    <span>{formatNumber(log.solarKw, 1)} kW</span>
-                    <span>{formatNumber(log.environmentalCostNok, 0)}</span>
-                    <span>{formatNumber(log.totalProductionMw, 2)} MW</span>
+                    <span>{formatDateTime(point.timestamp)}</span>
+                    <span>{formatNumber(point.total_production_mw, 2)}</span>
+                    <span>{formatNumber(point.revenue_nok_h, 0)}</span>
+                    <span>{formatNumber(point.environmental_cost_nok_h, 0)}</span>
+                    <span>{formatNumber(point.price_nok_mwh, 2)}</span>
+                    <span>{formatNumber(point.reservoir_level_pct, 2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardBlock>
+      </Card>
+
+      <Card>
+        <CardBlock>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+            Timehistorikk (siste 8 timer)
+          </Heading>
+
+          {latestHourlyRows.length === 0 ? (
+            <Paragraph>Ingen timehistorikk ennå.</Paragraph>
+          ) : (
+            <div style={{ maxHeight: '20rem', overflowY: 'auto', paddingRight: '0.25rem' }}>
+              <div style={{ display: 'grid', gap: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(140px, 1.4fr) repeat(6, minmax(90px, 1fr))',
+                    gap: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    borderBottom: '1px solid var(--ds-color-neutral-border-subtle)',
+                    fontWeight: 700,
+                    fontSize: '0.72rem',
+                    color: 'var(--ds-color-neutral-text-subtle)',
+                  }}
+                >
+                  <span>Time</span>
+                  <span>Snitt prod. (MW)</span>
+                  <span>Energi (MWh)</span>
+                  <span>Inntekt (NOK)</span>
+                  <span>Miljøkost (NOK)</span>
+                  <span>Spot snitt</span>
+                  <span>Magasin snitt</span>
+                </div>
+
+                {latestHourlyRows.map((point) => (
+                  <div
+                    key={point.hour}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(140px, 1.4fr) repeat(6, minmax(90px, 1fr))',
+                      gap: '0.5rem',
+                      padding: '0.6rem 0.75rem',
+                      border: '1px solid var(--ds-color-neutral-border-subtle)',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.8rem',
+                      background: 'var(--ds-color-neutral-surface-tinted)',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span>{formatDateTime(point.hour)}</span>
+                    <span>{formatNumber(point.avg_production_mw, 2)}</span>
+                    <span>{formatNumber(point.energy_mwh, 2)}</span>
+                    <span>{formatNumber(point.revenue_nok, 0)}</span>
+                    <span>{formatNumber(point.environmental_cost_nok, 0)}</span>
+                    <span>{formatNumber(point.avg_price_nok_mwh, 2)}</span>
+                    <span>{formatNumber(point.avg_reservoir_level_pct, 2)} %</span>
                   </div>
                 ))}
               </div>
