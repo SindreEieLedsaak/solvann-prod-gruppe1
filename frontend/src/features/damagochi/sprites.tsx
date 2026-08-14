@@ -157,7 +157,7 @@ export const COPY: Record<Mood, { text: string; sub: string }> = {
   },
   drinking: {
     text: 'Pumper',
-    sub: 'Damagochien drikker. Turbinene kjører motsatt vei og lagrer energi.',
+    sub: 'Damagochien drikker. Turbinene kjører motsatt vei og fyller magasinet.',
   },
   needsPee: {
     text: 'Klar til å produsere',

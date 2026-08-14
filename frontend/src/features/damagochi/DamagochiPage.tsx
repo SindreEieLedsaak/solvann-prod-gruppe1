@@ -20,11 +20,27 @@ interface DamagochiState {
 }
 
 export function DamagochiPage() {
-  const { data, loading, error } = usePolling(() => plantService.getOverview(), 5000);
+  const { data, loading, error, refetch } = usePolling(() => plantService.getOverview(), 5000);
   const [state, setState] = useState<DamagochiState>({ mood: 'thirsty', needIdx: 0 });
+  const [pumping, setPumping] = useState(false);
+  const [pumpError, setPumpError] = useState<string | null>(null);
 
-  function pump() {
-    setState((s) => ({ ...s, mood: 'drinking' }));
+  async function pump() {
+    if (pumping) return;
+    const target = data?.turbines.find((t) => t.status !== 'MAINTENANCE');
+    if (!target) return;
+
+    setPumping(true);
+    setPumpError(null);
+    try {
+      await plantService.setTurbineControl(target.id, { status: 'PUMPING' });
+      await refetch();
+      setState((s) => ({ ...s, mood: 'drinking' }));
+    } catch (err) {
+      setPumpError(err instanceof Error ? err.message : 'Ukjent feil');
+    } finally {
+      setPumping(false);
+    }
   }
 
   function produce() {
@@ -96,6 +112,7 @@ export function DamagochiPage() {
                 type="button"
                 className={[styles.controlButton, styles.controlButtonPump].join(' ')}
                 onClick={pump}
+                disabled={pumping}
               >
                 Pump
               </button>
@@ -114,6 +131,12 @@ export function DamagochiPage() {
                 Kjør
               </button>
             </div>
+
+            {pumpError && (
+              <Alert data-color="danger" className={styles.pumpError}>
+                <Paragraph data-size="sm">{pumpError}</Paragraph>
+              </Alert>
+            )}
           </div>
         </div>
 

@@ -98,3 +98,45 @@ export interface HourlyHistory {
   hour_count: number;
   points: HourlyHistoryPoint[];
 }
+
+export interface DailyReportProduction {
+  total_energy_mwh: number;
+  solar_energy_mwh: number;
+  active_turbines: number;
+  total_turbines: number;
+  standby_or_maintenance_turbines: number;
+  avg_reservoir_level_pct: number;
+}
+
+export interface DailyReportEconomy {
+  gross_revenue_nok: number;
+  total_environmental_cost_nok: number;
+  net_result_nok: number;
+  avg_spot_price_nok_mwh: number;
+  high_spot_price_nok_mwh: number;
+  low_spot_price_nok_mwh: number;
+}
+
+export interface DailyReportDecisionAnalysis {
+  standby_turbine_ids: string[];
+  standby_lost_revenue_nok: number;
+  standby_should_run_hours: number;
+  peak_underproduction_hours: number;
+  price_optimization_loss_nok: number;
+  net_deviation_nok: number;
+}
+
+export interface DailyReportEnvironment {
+  hours_with_environmental_cost: number;
+  hours_without_environmental_cost: number;
+  total_environmental_cost_nok: number;
+  avg_outflow_m3s: number;
+}
+
+export interface DailyReport {
+  timestamp: string;
+  production: DailyReportProduction;
+  economy: DailyReportEconomy;
+  decision_analysis: DailyReportDecisionAnalysis;
+  environment: DailyReportEnvironment;
+}
