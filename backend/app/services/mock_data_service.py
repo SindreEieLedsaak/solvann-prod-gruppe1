@@ -143,17 +143,21 @@ def _solar_factor() -> float:
     return 0.0
 
 
-def _market_price_base() -> float:
-    """Simulate Norwegian spot-price pattern (NOK/MWh, roughly NO5-scale):
-    peaks at 07–09 and 17–19, cheapest overnight."""
-    h = datetime.now().hour
-    if 7 <= h <= 9:
-        return 560.0
-    if 17 <= h <= 19:
-        return 500.0
+PEAK_HOURS = {7, 8, 9, 17, 18, 19}
+
+
+def _market_price_base_for_hour(h: int) -> float:
+    """Base NOK/MWh for a given hour-of-day (roughly NO5-scale): peaks at
+    07-09 and 17-19 (see PEAK_HOURS), cheapest overnight."""
+    if h in PEAK_HOURS:
+        return 560.0 if h <= 9 else 500.0
     if h >= 22 or h <= 5:
         return 150.0
     return 350.0
+
+
+def _market_price_base() -> float:
+    return _market_price_base_for_hour(datetime.now().hour)
 
 
 def _turbine_production(capacity_mw: float, status: str, load_pct: float) -> float:
@@ -427,4 +431,106 @@ def get_overview() -> dict[str, Any]:
         "reservoir": reservoir,
         "market": market,
         "solar": solar,
+    }
+
+
+def get_daily_report() -> dict[str, Any]:
+    """Daglig driftsrapport — a management-facing daily summary.
+
+    There's no persisted daily history here (see history_service for the
+    Postgres-backed snapshot log); this projects the plant's *current*
+    instantaneous state across a full 24h day, and reasons about "today"
+    using the known peak-price schedule (PEAK_HOURS) rather than an actual
+    hour-by-hour log. Good enough for a live operations snapshot, not a
+    substitute for real historical aggregation.
+    """
+    turbines = get_turbines()
+    reservoir = get_reservoir()
+    market = get_market()
+    solar = get_solar()
+
+    running = [t for t in turbines if t["status"] == "RUNNING"]
+    standby = [t for t in turbines if t["status"] == "STANDBY"]
+    maintenance = [t for t in turbines if t["status"] == "MAINTENANCE"]
+    active_count = sum(1 for t in turbines if t["status"] in ("RUNNING", "PUMPING"))
+
+    solar_mw = solar["production_kw"] / 1000.0
+    total_mw = sum(t["production_mw"] for t in turbines) + solar_mw
+
+    excess_outflow = max(0.0, reservoir["outflow_m3s"] - 15.0)
+    env_cost_h = round(excess_outflow * 90.0, 0)
+    revenue_h = round(total_mw * market["price_nok_mwh"], 0)
+    revenue_day = round(revenue_h * 24.0, 0)
+    env_cost_day = round(env_cost_h * 24.0, 0)
+
+    # Today's price curve: known intraday shape (see _market_price_base_for_hour)
+    # shifted by the current live oscillation/noise offset, held constant.
+    current_hour = datetime.now().hour
+    offset = market["price_nok_mwh"] - _market_price_base_for_hour(current_hour)
+    hourly_prices = [
+        max(0.0, _market_price_base_for_hour(h) + offset) for h in range(24)
+    ]
+
+    peak_hours_count = len(PEAK_HOURS)
+    derate = _head_derate_factor(reservoir["level_pct"])
+
+    standby_ids = {t["id"] for t in standby}
+    standby_capacity_mw = sum(
+        defn["capacity_mw"] for defn in TURBINE_DEFS if defn["id"] in standby_ids
+    )
+    standby_lost_revenue = round(
+        standby_capacity_mw
+        * (TURBINE_DEFAULT_LOAD_PCT / 100.0)
+        * derate
+        * market["price_nok_mwh"]
+        * peak_hours_count,
+        0,
+    )
+
+    # "Underproduction" = running below rated output specifically because low
+    # reservoir level is capping head/pressure (_head_derate_factor), not just
+    # running below 100% load (85% is the normal operating target).
+    underproduction_hours = peak_hours_count if derate < 1.0 else 0
+    load_frac = TURBINE_DEFAULT_LOAD_PCT / 100.0
+    running_shortfall_mw = sum(
+        t["capacity_mw"] * load_frac * (1.0 - derate) for t in running
+    )
+    optimization_loss = round(
+        running_shortfall_mw * market["price_nok_mwh"] * underproduction_hours, 0
+    )
+
+    env_hours_with_cost = 24 if env_cost_h > 0 else 0
+
+    return {
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "production": {
+            "total_energy_mwh": round(total_mw * 24.0, 1),
+            "solar_energy_mwh": round(solar_mw * 24.0, 1),
+            "active_turbines": active_count,
+            "total_turbines": len(turbines),
+            "standby_or_maintenance_turbines": len(standby) + len(maintenance),
+            "avg_reservoir_level_pct": reservoir["level_pct"],
+        },
+        "economy": {
+            "gross_revenue_nok": revenue_day,
+            "total_environmental_cost_nok": env_cost_day,
+            "net_result_nok": revenue_day - env_cost_day,
+            "avg_spot_price_nok_mwh": round(sum(hourly_prices) / len(hourly_prices), 1),
+            "high_spot_price_nok_mwh": round(max(hourly_prices), 1),
+            "low_spot_price_nok_mwh": round(min(hourly_prices), 1),
+        },
+        "decision_analysis": {
+            "standby_turbine_ids": [t["id"] for t in standby],
+            "standby_lost_revenue_nok": standby_lost_revenue,
+            "standby_should_run_hours": peak_hours_count if standby else 0,
+            "peak_underproduction_hours": underproduction_hours,
+            "price_optimization_loss_nok": optimization_loss,
+            "net_deviation_nok": standby_lost_revenue + optimization_loss,
+        },
+        "environment": {
+            "hours_with_environmental_cost": env_hours_with_cost,
+            "hours_without_environmental_cost": 24 - env_hours_with_cost,
+            "total_environmental_cost_nok": env_cost_day,
+            "avg_outflow_m3s": reservoir["outflow_m3s"],
+        },
     }

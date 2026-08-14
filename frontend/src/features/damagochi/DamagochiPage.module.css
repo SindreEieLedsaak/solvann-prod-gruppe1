@@ -252,6 +252,7 @@
 
 .chipList {
   display: flex;
+  align-items: flex-start;
   gap: var(--ds-size-2);
   flex-wrap: wrap;
 }
@@ -271,6 +272,9 @@
 
 .chip.chipActive {
   color: var(--ds-color-neutral-text-default);
+  padding: var(--ds-size-2) var(--ds-size-3);
+  font-size: var(--ds-font-size-3);
+  font-weight: 700;
 }
 
 .chipDot {
@@ -278,4 +282,9 @@
   height: 6px;
   border-radius: 50%;
   background: currentcolor;
+}
+
+.chipActive .chipDot {
+  width: 9px;
+  height: 9px;
 }

@@ -1,63 +1,79 @@
-.fileRow {
-  display: flex;
-  align-items: center;
-  gap: var(--ds-size-2);
-  padding-bottom: var(--ds-size-3);
-  margin-bottom: var(--ds-size-3);
+.report {
+  max-width: 640px;
+}
+
+.letterhead {
+  padding-bottom: var(--ds-size-4);
+  margin-bottom: var(--ds-size-4);
+  border-bottom: 2px solid var(--ds-color-neutral-border-default);
+}
+
+.plantName {
+  letter-spacing: 0.02em;
+}
+
+.reportSubtitle {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.reportDate {
+  margin-top: var(--ds-size-2);
+  font-weight: 500;
+}
+
+.disclaimer {
+  margin-top: var(--ds-size-2);
+  color: var(--ds-color-neutral-text-subtle);
+  font-style: italic;
+}
+
+.section {
+  margin-bottom: var(--ds-size-5);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  letter-spacing: 0.08em;
+  color: var(--ds-color-accent-text-default, var(--ds-color-neutral-text-subtle));
+  padding-bottom: var(--ds-size-1);
+  margin-bottom: var(--ds-size-2);
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
-.filename {
-  font-size: var(--ds-font-size-2);
-  font-weight: 500;
+.rows {
+  margin: 0;
 }
 
-.sheetScroll {
-  overflow-x: auto;
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ds-size-4);
+  padding: var(--ds-size-2) 0;
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
-.sheet {
-  border-collapse: collapse;
-  font-size: var(--ds-font-size-1);
-  min-width: 760px;
+.row:last-child {
+  border-bottom: none;
 }
 
-.cornerCell,
-.colHeader,
-.rowHeader {
-  padding: var(--ds-size-1) var(--ds-size-2);
-  border: 1px solid #e1e4e8;
-  background: #f7f8fa;
-  color: #8a93a0;
-  font-weight: 500;
-  text-align: center;
-  min-width: 32px;
+.label {
+  margin: 0;
+  color: var(--ds-color-neutral-text-default);
 }
 
-.cell {
-  padding: var(--ds-size-1) var(--ds-size-2);
-  border: 1px solid #e1e4e8;
+.value {
+  margin: 0;
+  font-weight: 600;
   white-space: nowrap;
-  background: #fff;
-  color: #12161c;
+  text-align: right;
 }
 
-.cellTitle {
-  font-weight: 600;
-  font-size: var(--ds-font-size-2);
-}
-
-.cellHeader {
-  font-weight: 600;
-  background: #e4e7eb;
-  color: #12161c;
-}
-
-.cellMetaLabel {
-  font-weight: 600;
-  color: #12161c;
-}
-
-.cellMeta {
-  color: #1f2430;
+.unit {
+  margin-left: var(--ds-size-1);
+  font-weight: 400;
+  color: var(--ds-color-neutral-text-subtle);
 }

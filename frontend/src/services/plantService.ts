@@ -9,6 +9,7 @@ import type {
   SolarData,
   PlantHistory,
   HourlyHistory,
+  DailyReport,
 } from '../types/plant';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api`;
@@ -16,6 +17,11 @@ const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api`;
 export const plantService = {
   async getOverview(): Promise<PlantOverview> {
     const res = await apiClient.get<PlantOverview>('/plant/overview');
+    return res.data;
+  },
+
+  async getDailyReport(): Promise<DailyReport> {
+    const res = await apiClient.get<DailyReport>('/plant/report');
     return res.data;
   },
 
