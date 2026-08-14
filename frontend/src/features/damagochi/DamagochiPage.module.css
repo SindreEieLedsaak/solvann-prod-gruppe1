@@ -119,6 +119,11 @@
   margin-top: var(--ds-size-8);
 }
 
+.pumpError {
+  margin-top: var(--ds-size-4);
+  width: 100%;
+}
+
 .controlButton {
   flex: 1;
   min-width: 44px;
